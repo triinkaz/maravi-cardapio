@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0a5b43">
+  <meta name="description" content="Escolha seus doces favoritos da Maravi Doceria e envie seu pedido pelo WhatsApp.">
+  <title>Maravi Doceria — Cardápio & Pedidos</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <div class="top-pattern" aria-hidden="true"></div>
+  <header class="site-header wrap">
+    <a class="brand" href="#inicio" aria-label="Maravi Doceria, início">
+      <span class="brand-seal">MR</span>
+      <span class="brand-name">Maravi <small>DOCERIA</small></span>
+    </a>
+    <nav class="top-nav" aria-label="Navegação principal">
+      <a href="#cardapio">Cardápio</a>
+      <a href="#como-pedir">Como pedir</a>
+      <a class="nav-order" href="#pedido">Meu pedido <span id="nav-count">0</span></a>
+    </nav>
+  </header>
+
+  <main id="inicio">
+    <section class="hero wrap">
+      <div class="hero-copy">
+        <span class="eyebrow"><span class="sparkle">✦</span> FEITO EM CARAGUATATUBA</span>
+        <h1>Um carinho em forma de <em>doce.</em></h1>
+        <p>Escolha seus favoritos, monte seu pedido e envie tudo prontinho para a Maravi pelo WhatsApp.</p>
+        <a class="primary-btn" href="#cardapio">Explorar cardápio <span aria-hidden="true">↗</span></a>
+        <div class="hero-meta"><span>✦ Produção artesanal</span><span>✦ Pedido direto no WhatsApp</span></div>
+      </div>
+      <div class="hero-art" aria-label="Cookies da Maravi Doceria">
+        <div class="hero-circle"></div>
+        <img class="hero-photo hero-photo-one" src="assets/classic-nutella.webp" alt="Cookie Classic Nutella" fetchpriority="high">
+        <img class="hero-photo hero-photo-two" src="assets/red-ninho.webp" alt="Cookie Red Ninho">
+        <span class="hero-sticker">feito com<br><strong>carinho ♡</strong></span>
+      </div>
+    </section>
+
+    <section id="cardapio" class="menu-section">
+      <div class="wrap content-layout">
+        <div class="catalog">
+          <div class="section-heading">
+            <div><span class="eyebrow">O SABOR DO SEU MOMENTO</span><h2>Nosso cardápio</h2></div>
+            <p>Escolha seus favoritos e adicione ao pedido.</p>
+          </div>
+          <div class="filters" id="filters" role="group" aria-label="Filtrar cardápio"></div>
+          <div class="menu-grid" id="menu-grid"></div>
+          <p class="availability-note">Produtos e prazos sujeitos à confirmação pela Maravi. Fotos ilustrativas do próprio cardápio.</p>
+        </div>
+
+        <aside id="pedido" class="cart-panel" aria-label="Meu pedido">
+          <div class="cart-head">
+            <div><span class="eyebrow">SEU MOMENTO DOCE</span><h2>Meu pedido <span id="cart-count">0</span></h2></div>
+            <button class="cart-close" id="cart-close" type="button" aria-label="Fechar pedido">×</button>
+          </div>
+          <div id="cart-items" class="cart-items" aria-live="polite"></div>
+          <div class="cart-totals" id="cart-totals"></div>
+          <form id="checkout-form" novalidate>
+            <h3>Detalhes do pedido</h3>
+            <label for="customer-name">Seu nome <span>*</span></label>
+            <input id="customer-name" name="name" autocomplete="name" required placeholder="Como podemos te chamar?">
+
+            <fieldset class="choice-field">
+              <legend>Como deseja receber? <span>*</span></legend>
+              <div class="segmented">
+                <label><input type="radio" name="fulfillment" value="retirada" checked><span>Retirar</span></label>
+                <label><input type="radio" name="fulfillment" value="entrega"><span>Entrega</span></label>
+              </div>
+            </fieldset>
+            <div id="address-wrap" hidden>
+              <label for="address">Endereço de entrega <span>*</span></label>
+              <textarea id="address" name="address" rows="2" placeholder="Rua, número, bairro e complemento"></textarea>
+              <p class="field-hint">A taxa de entrega será confirmada pela Maravi.</p>
+            </div>
+
+            <label for="when">Data e horário desejados</label>
+            <input id="when" name="when" placeholder="Ex.: hoje, por volta das 18h">
+
+            <label for="payment">Forma de pagamento <span>*</span></label>
+            <select id="payment" name="payment" required>
+              <option value="">Selecione</option>
+              <option value="Pix">Pix</option>
+              <option value="Cartão de débito">Cartão de débito</option>
+              <option value="Cartão de crédito">Cartão de crédito</option>
+              <option value="Dinheiro">Dinheiro</option>
+            </select>
+            <div id="change-wrap" hidden>
+              <label for="change">Troco para quanto?</label>
+              <input id="change" name="change" inputmode="decimal" placeholder="Ex.: R$ 100,00 (ou sem troco)">
+            </div>
+
+            <label for="notes">Observações</label>
+            <textarea id="notes" name="notes" rows="2" placeholder="Algum detalhe para a Maravi?"></textarea>
+            <p id="form-error" class="form-error" role="alert" hidden></p>
+            <button id="order-button" class="whatsapp-btn" type="submit">Pedir pelo WhatsApp <span aria-hidden="true">↗</span></button>
+            <p class="checkout-note">O WhatsApp abrirá com sua mensagem pronta. O pedido é confirmado pela Maravi.</p>
+          </form>
+        </aside>
+      </div>
+    </section>
+
+    <section id="como-pedir" class="how-section wrap">
+      <div><span class="eyebrow">SIMPLES ASSIM</span><h2>Seu doce a poucos cliques.</h2></div>
+      <div class="steps"><span><b>01</b> Escolha os produtos</span><span><b>02</b> Conte como receber</span><span><b>03</b> Envie no WhatsApp</span></div>
+    </section>
+  </main>
+
+  <footer class="footer"><div class="wrap footer-inner"><div class="footer-brand">Maravi <span>Doceria</span></div><p>Feito com carinho em Caraguatatuba, SP.</p><a href="https://www.instagram.com/maravidoceria/" target="_blank" rel="noopener noreferrer">@maravidoceria ↗</a></div></footer>
+
+  <button id="mobile-cart-button" class="mobile-cart-button" type="button"><span>Ver meu pedido <b id="mobile-count">0</b></span><strong id="mobile-total">R$ 0,00</strong></button>
+  <div id="cart-backdrop" class="cart-backdrop" hidden></div>
+  <dialog id="custom-dialog" class="custom-dialog" aria-labelledby="dialog-title">
+    <div class="dialog-head"><div><span class="eyebrow">DO SEU JEITO</span><h2 id="dialog-title"></h2></div><button id="dialog-close" type="button" aria-label="Fechar">×</button></div>
+    <p id="dialog-description"></p>
+    <div id="dialog-options"></div>
+    <p id="dialog-counter"></p>
+    <button id="dialog-add" class="primary-btn" type="button">Adicionar ao pedido</button>
+  </dialog>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+</body>
+</html>
