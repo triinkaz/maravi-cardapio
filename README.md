@@ -6,7 +6,7 @@ Site do cardápio da Maravi Doceria. O cliente escolhe os itens, informa entrega
 
 - **Para hoje:** mostra a data atual de `America/Sao_Paulo`, sem campo editável. Delivery informa estimativa de 35–75 minutos, a confirmar pelo WhatsApp. Retirada mantém prazo a confirmar, sem impor prazo de entrega.
 - **Agendar:** data, horário e pagamento são combinados pelo WhatsApp; o site não pede essas escolhas nem inclui valores antigos no resumo.
-- **Pagamento automático:** apenas delivery para hoje, de segunda a sexta entre 12:00 (inclusive) e 17:00 (exclusive), restringe a seleção a Pix. Das 19h às 22h e aos fins de semana todas as formas permanecem disponíveis. Não há nova regra, bloqueio ou cálculo de horário fora dessas faixas. Retirada preserva todas as formas.
+- **Pagamento automático:** apenas delivery para hoje, de terça a sábado entre 12:00 (inclusive) e 17:00 (exclusive), restringe a seleção a Pix. De terça a sábado, das 19h às 22h, e domingo, das 17h às 22h, todas as formas permanecem disponíveis. Segunda não tem restrição de Pix. Não há nova regra, bloqueio ou cálculo de horário fora dessas faixas. Retirada preserva todas as formas.
 - A data e as opções são atualizadas ao retornar à página, ao abrir o carrinho e antes/depois da confirmação do catálogo. Uma seleção que deixou de ser válida é limpa para o cliente revisar; nenhuma forma é trocada silenciosamente por outra.
 - O total dos produtos e eventuais descontos continuam visíveis, sem repetir o subtotal. Taxa de entrega e confirmação do pedido continuam no WhatsApp.
 
