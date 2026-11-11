@@ -42,7 +42,7 @@ async function run() {
       const productImages = [...document.querySelectorAll('.product-img')];
       // Lazy images must be decoded before measuring their source crop.
       for (const image of productImages) { image.loading = 'eager'; await image.decode(); }
-      const crops = ['kinder-classic', 'rabanada'].map(id => {
+      const crops = ['kinder-classic', 'rabanada', 'classic-nutella', 'dark-cacau'].map(id => {
         const image = document.querySelector(`[data-add="${id}"]`).closest('.product-card').querySelector('img');
         const rect = image.getBoundingClientRect(), style = getComputedStyle(image);
         const scale = Math.max(rect.width / image.naturalWidth, rect.height / image.naturalHeight);
@@ -67,14 +67,17 @@ async function run() {
       assert.equal(crop.objectFit, 'cover');
       assert.ok(Math.abs(crop.ratio - 4 / 3) < .01, `${width}: stable photo proportions`);
       // Visually inspected source bounds: both halves lie inside y=203..415
-      // for Kinder and y=230..408 for Rabanada (360x480 originals).
-      const top = crop.id === 'kinder-classic' ? 203 : 230;
-      const bottom = crop.id === 'kinder-classic' ? 415 : 408;
+      // for Kinder, y=230..408 for Rabanada, y=212..414 for Nutella
+      // and y=248..442 for Dark Cacau (360x480 originals).
+      const [top, bottom] = {
+        'kinder-classic': [203, 415], rabanada: [230, 408],
+        'classic-nutella': [212, 414], 'dark-cacau': [248, 442]
+      }[crop.id];
       assert.ok(crop.top <= top && crop.bottom >= bottom, `${width}: ${crop.id} cuts off a cookie half`);
     }
     if ([390, 1280].includes(width)) {
       await page.screenshot({ path: path.join(output, `hero-${width}.png`), animations: 'disabled' });
-      for (const id of ['kinder-classic', 'rabanada']) {
+      for (const id of ['kinder-classic', 'rabanada', 'classic-nutella', 'dark-cacau']) {
         await page.locator(`[data-add="${id}"]`).locator('xpath=ancestor::article').screenshot({
           path: path.join(output, `${id}-${width}.png`), animations: 'disabled'
         });
