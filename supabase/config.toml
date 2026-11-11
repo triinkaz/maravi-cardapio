@@ -1,0 +1,4 @@
+# This entry is for the future authorized deployment. No deployment is automatic.
+# The login function verifies the user's password itself, before a JWT exists.
+[functions.admin-login]
+verify_jwt = false
