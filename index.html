@@ -89,20 +89,34 @@
               <p class="field-hint">A taxa de entrega será confirmada pela Maravi.</p>
             </div>
 
-            <label for="when">Data e horário desejados</label>
-            <input id="when" name="when" placeholder="Ex.: hoje, por volta das 18h">
+            <fieldset class="choice-field">
+              <legend>Quando deseja pedir? <span>*</span></legend>
+              <div class="segmented">
+                <label><input type="radio" name="orderTiming" value="hoje" checked><span>Para hoje</span></label>
+                <label><input type="radio" name="orderTiming" value="agendar"><span>Agendar</span></label>
+              </div>
+            </fieldset>
+            <div id="today-details" class="timing-details">
+              <p>Hoje, <time id="order-date"></time></p>
+              <p id="delivery-estimate" class="field-hint" hidden>Estimativa de entrega: 35–75 minutos, a confirmar pelo WhatsApp.</p>
+              <p id="pickup-estimate" class="field-hint">Prazo de retirada a confirmar pelo WhatsApp.</p>
+            </div>
+            <p id="schedule-details" class="field-hint timing-details" hidden>Data, horário e pagamento serão combinados pelo WhatsApp.</p>
 
-            <label for="payment">Forma de pagamento <span>*</span></label>
-            <select id="payment" name="payment" required>
-              <option value="">Selecione</option>
-              <option value="Pix">Pix</option>
-              <option value="Cartão de débito">Cartão de débito</option>
-              <option value="Cartão de crédito">Cartão de crédito</option>
-              <option value="Dinheiro">Dinheiro</option>
-            </select>
-            <div id="change-wrap" hidden>
-              <label for="change">Troco para quanto?</label>
-              <input id="change" name="change" inputmode="decimal" placeholder="Ex.: R$ 100,00 (ou sem troco)">
+            <div id="payment-wrap">
+              <label for="payment">Forma de pagamento <span>*</span></label>
+              <select id="payment" name="payment" required aria-describedby="payment-hint">
+                <option value="">Selecione</option>
+                <option value="Pix">Pix</option>
+                <option value="Cartão de débito">Cartão de débito</option>
+                <option value="Cartão de crédito">Cartão de crédito</option>
+                <option value="Dinheiro">Dinheiro</option>
+              </select>
+              <p id="payment-hint" class="field-hint" aria-live="polite" hidden></p>
+              <div id="change-wrap" hidden>
+                <label for="change">Troco para quanto?</label>
+                <input id="change" name="change" inputmode="decimal" placeholder="Ex.: R$ 100,00 (ou sem troco)">
+              </div>
             </div>
 
             <label for="notes">Observações</label>
