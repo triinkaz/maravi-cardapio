@@ -24,7 +24,11 @@ async function run() {
   const base = `http://127.0.0.1:${server.address().port}`;
   browser = await chromium.launch({ ...(process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {}), headless: true });
   const context = await browser.newContext();
-  await context.route('**/*', route => new URL(route.request().url()).origin === base ? route.continue() : route.abort());
+  await context.route('**/*', route => {
+    const url=new URL(route.request().url());
+    if(url.origin===base && url.pathname==='/config.js') return route.fulfill({contentType:'text/javascript',body:'window.MARAVI_CONFIG={};'});
+    return url.origin === base ? route.continue() : route.abort();
+  });
   const page = await context.newPage();
   const errors = [];
   page.on('pageerror', error => errors.push(error.message));

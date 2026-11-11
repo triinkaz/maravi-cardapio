@@ -2,6 +2,9 @@
 
 ## Situação desta entrega
 
+A instalação deste projeto já está ativa para testes: login, catálogo e Storage foram validados. `config.js` contém somente a URL e a chave pública. O site atual será temporário; antes do uso comercial, migrar de hospedagem e revisar limites de autenticação. As etapas abaixo documentam como configurar/reproduzir a instalação, não tarefas automaticamente pendentes.
+
+
 O código do painel e o esquema do banco estão preparados. **Este código não cria automaticamente projeto Supabase, usuário, senha, chave secreta ou permissão de administrador.** O painel só poderá salvar alterações depois que o responsável configurar o backend e a função de login, criar seu usuário e conceder acesso. A preparação do código não comprova que essas etapas externas foram concluídas. O GitHub Pages hospeda arquivos estáticos e não executa um servidor de autenticação ou um banco de dados.
 
 Não há senha padrão nem senha embutida no JavaScript. Não publique uma senha no repositório e não envie senhas pelo chat. A URL do projeto e a chave **publishable default** são configurações públicas, não credenciais administrativas. A proteção efetiva está nas funções e permissões do banco. O login por usuário exige essa mesma chave `default`; a chave legada `anon` não é aceita neste cliente.
@@ -76,7 +79,7 @@ Edite somente os valores públicos de `config.js`:
 ```js
 window.MARAVI_CONFIG = Object.freeze({
   supabaseUrl: 'https://SEU-PROJETO.supabase.co',
-  supabasePublishableKey: 'SUA-CHAVE-PUBLISHABLE-OU-ANON'
+  supabasePublishableKey: 'SUA-CHAVE-PUBLISHABLE-DEFAULT'
 });
 ```
 

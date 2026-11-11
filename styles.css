@@ -17,3 +17,5 @@
 .add-btn:disabled{background:#e5e7e3;color:#656d65;cursor:not-allowed;opacity:.8}
 .catalog-status{grid-column:1/-1;padding:2rem;background:#fff;border-radius:1rem;color:#365448}
 .catalog-status .primary-btn{margin-top:1rem}
+
+.test-notice{margin:0;padding:10px 18px;text-align:center;background:#e6efda;color:#234d37;font:12px/1.5 Arial,sans-serif;border-bottom:1px solid #cddbc2}

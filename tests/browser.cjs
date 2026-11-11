@@ -33,8 +33,8 @@ async function makeContext(state) {
   const context = await browser.newContext({ viewport: { width: 1280, height: 900 } });
   await context.route('**/*', async route => {
     const req = route.request(), url = new URL(req.url());
-    if (url.origin === base && state && url.pathname === '/config.js') {
-      return route.fulfill({ contentType: 'text/javascript', body: `window.MARAVI_CONFIG={supabaseUrl:'${apiOrigin}',supabasePublishableKey:'sb_publishable_test'};` });
+    if (url.origin === base && url.pathname === '/config.js') {
+      return route.fulfill({ contentType: 'text/javascript', body: state ? `window.MARAVI_CONFIG={supabaseUrl:'${apiOrigin}',supabasePublishableKey:'sb_publishable_test'};` : 'window.MARAVI_CONFIG={};' });
     }
     if (url.origin === base) return route.continue();
     // No test sends data to Supabase, WhatsApp, Google Fonts or any real service.

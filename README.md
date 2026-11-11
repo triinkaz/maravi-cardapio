@@ -6,7 +6,7 @@ Site do cardápio da Maravi Doceria. O cliente escolhe os itens, informa entrega
 
 Abra `admin.html` para administrar produtos, preços, disponibilidade, estoque manual, fotos e sabores de caixas de quatro. As edições ficam em rascunho até clicar em **Publicar alterações**. O painel permite criar, editar, inativar e excluir produtos. Novas fotos JPG, PNG ou WebP de até 5 MiB podem ser enviadas pelo editor; o navegador as otimiza em WebP antes de carregar no Storage.
 
-**A ativação está pendente:** o repositório não contém senha padrão nem projeto Supabase configurado. O login por nome de usuário e os salvamentos só funcionam depois de seguir [o guia de configuração](docs/ADMIN_SETUP.md). Não coloque senhas ou chaves administrativas em arquivos públicos.
+**Versão temporária de testes:** o backend Supabase está configurado com valores públicos em `config.js`; não há senha padrão nem chave administrativa no repositório. Cadastro público está fechado. A publicação definitiva será feita após a migração de hospedagem. Veja [o guia de configuração](docs/ADMIN_SETUP.md).
 
 O login usa uma Edge Function com associação privada entre nome de usuário e e-mail da conta. A redefinição de senha fica a cargo do responsável, sem tela de recuperação automática neste site. O backend usa Supabase Auth e PostgreSQL, com lista de administradores, RLS e funções de gravação autorizadas no servidor. Tokens ficam somente na memória da página. O cliente relê o catálogo antes de abrir o pedido no WhatsApp. Estoque é manual, sem reserva ou baixa automática.
 

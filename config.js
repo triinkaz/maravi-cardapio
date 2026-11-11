@@ -1,6 +1,6 @@
 // Configuração pública. Nunca coloque service_role, senha ou sb_secret_ aqui.
-// Preencha somente depois de executar supabase/schema.sql e seguir docs/ADMIN_SETUP.md.
+// Backend já configurado para a versão temporária de testes.
 window.MARAVI_CONFIG = Object.freeze({
-  supabaseUrl: '',
-  supabasePublishableKey: ''
+  supabaseUrl: 'https://dkllcttqkyazbkqygixv.supabase.co',
+  supabasePublishableKey: 'sb_publishable_KErw-i3Zc39SgWHoIXB9rA_XXV1sAlW'
 });
