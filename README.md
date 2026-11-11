@@ -6,9 +6,9 @@ Site do cardápio da Maravi Doceria. O cliente escolhe os itens, informa entrega
 
 Abra `admin.html` para administrar produtos, preços, disponibilidade, estoque manual e sabores de caixas de quatro. As edições ficam em rascunho até clicar em **Publicar alterações**. O painel permite criar, editar, inativar e excluir produtos.
 
-**A ativação está pendente:** o repositório não contém senha padrão nem projeto Supabase configurado. O login e os salvamentos só funcionam depois de seguir [o guia de configuração](docs/ADMIN_SETUP.md). Não coloque senhas ou chaves administrativas em arquivos públicos.
+**A ativação está pendente:** o repositório não contém senha padrão nem projeto Supabase configurado. O login por nome de usuário e os salvamentos só funcionam depois de seguir [o guia de configuração](docs/ADMIN_SETUP.md). Não coloque senhas ou chaves administrativas em arquivos públicos.
 
-O backend usa Supabase Auth e PostgreSQL, com lista de administradores, RLS e funções de gravação autorizadas no servidor. Tokens ficam somente na memória da página. O cliente relê o catálogo antes de abrir o pedido no WhatsApp. Estoque é manual, sem reserva ou baixa automática.
+O login usa uma Edge Function com associação privada entre nome de usuário e e-mail da conta. A redefinição de senha fica a cargo do responsável, sem tela de recuperação automática neste site. O backend usa Supabase Auth e PostgreSQL, com lista de administradores, RLS e funções de gravação autorizadas no servidor. Tokens ficam somente na memória da página. O cliente relê o catálogo antes de abrir o pedido no WhatsApp. Estoque é manual, sem reserva ou baixa automática.
 
 Enquanto `config.js` estiver vazio, o cardápio original de `app.js` continua funcionando e o painel fica bloqueado. Depois de configurado, falhas no backend não fazem o site voltar silenciosamente a preços ou estoque antigos.
 
@@ -38,6 +38,7 @@ O GitHub Pages publica a raiz de `main`. Uma branch/PR de revisão não ativa o 
 
 - `config.js`: URL e chave pública do backend.
 - `supabase/schema.sql`: banco, funções e catálogo inicial.
+- `supabase/functions/admin-login/`: login por usuário, ainda dependente de configuração e deploy autorizados.
 - `app.js`: catálogo estático inicial, WhatsApp e regras de pedidos/promoções.
 - `assets/`: fotos; o painel escolhe arquivos já publicados, sem upload.
 - `admin.html`, `admin.js`, `admin.css`: administração.

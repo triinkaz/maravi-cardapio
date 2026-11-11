@@ -56,7 +56,7 @@
     loginBusy=true; $('login-button').disabled=true; message('Entrando…');
     const current=++generation; let session;
     try {
-      session=await backend.login($('email').value.trim(),$('password').value);
+      session=await backend.login($('username').value.trim().toLowerCase(),$('password').value);
       $('password').value='';
       if(current!==generation)return;
       if(!session.accessToken||!Number.isFinite(session.expiresAt)||session.expiresAt<=Date.now())throw new Error('A sessão recebida não é válida. Entre novamente.');
@@ -68,7 +68,7 @@
     } catch(error) {
       if(current!==generation)return;
       if(session?.accessToken) backend.logout(session.accessToken).catch(()=>{});
-      resetSession(error.status===400||error.status===401?'E-mail ou senha inválidos. Tente novamente.':error.status===403?'Esta conta não está autorizada a administrar o cardápio.':error.message||'Não foi possível entrar. Verifique a conexão.');
+      resetSession(error.status===400||error.status===401?'Usuário ou senha inválidos. Tente novamente.':error.status===403?'Esta conta não está autorizada a administrar o cardápio.':error.message||'Não foi possível entrar. Verifique a conexão.');
     } finally {if(current===generation){loginBusy=false;$('login-button').disabled=!backend?.configured;}}
   });
   $('logout').addEventListener('click',async()=>{

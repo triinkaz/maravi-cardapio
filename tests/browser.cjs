@@ -42,7 +42,7 @@ async function makeContext(state) {
     const headers = { 'access-control-allow-origin': '*', 'access-control-allow-headers': 'apikey,authorization,content-type', 'access-control-allow-methods': 'POST,OPTIONS' };
     const reply = (status, body) => route.fulfill({ status, headers, contentType: 'application/json', ...(status === 204 ? {} : { body: JSON.stringify(body) }) });
     if (req.method() === 'OPTIONS') return reply(204);
-    if (url.pathname === '/auth/v1/token') {
+    if (url.pathname === '/functions/v1/admin-login') {
       if (state.badLogin) return reply(400, { code: 'invalid_credentials' });
       return reply(200, { access_token: 'test-memory-only-session', expires_in: 3600 });
     }
@@ -71,7 +71,7 @@ async function screenshot(page, name) {
   assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, name + ': horizontal overflow');
 }
 async function login(page) {
-  await page.locator('#email').fill('admin@example.test');
+  await page.locator('#username').fill('maravi');
   await page.locator('#password').fill('mock-password-no-real-account');
   await page.locator('#login-button').click();
   await page.locator('#workspace').waitFor({ state: 'visible' });
@@ -132,8 +132,8 @@ async function run() {
   const adminContext = await makeContext(state), a = await adminContext.newPage();
   await a.goto(base + '/admin.html');
   await screenshot(a, 'admin-login-desktop');
-  await a.locator('#email').fill('admin@example.test'); await a.locator('#password').fill('mock-password-no-real-account');
-  await a.locator('#login-button').click(); await a.getByText('E-mail ou senha inválidos.', { exact: false }).waitFor();
+  await a.locator('#username').fill('maravi'); await a.locator('#password').fill('mock-password-no-real-account');
+  await a.locator('#login-button').click(); await a.getByText('Usuário ou senha inválidos.', { exact: false }).waitFor();
   assert.equal(await a.locator('#password').inputValue(), '');
   state.badLogin = false; await login(a);
   assert.equal(await a.locator('.product').count(), 14);

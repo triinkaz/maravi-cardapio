@@ -2,9 +2,9 @@
 
 ## Situação desta entrega
 
-O código do painel e o esquema do banco estão preparados. **Nenhum projeto Supabase, usuário, senha, chave secreta ou permissão de administrador foi criado por esta alteração.** O painel só poderá salvar alterações depois que o responsável configurar o backend, criar seu usuário e conceder acesso. O GitHub Pages hospeda arquivos estáticos e não executa um servidor de autenticação ou um banco de dados.
+O código do painel e o esquema do banco estão preparados. **Este código não cria automaticamente projeto Supabase, usuário, senha, chave secreta ou permissão de administrador.** O painel só poderá salvar alterações depois que o responsável configurar o backend e a função de login, criar seu usuário e conceder acesso. A preparação do código não comprova que essas etapas externas foram concluídas. O GitHub Pages hospeda arquivos estáticos e não executa um servidor de autenticação ou um banco de dados.
 
-Não há senha padrão nem senha embutida no JavaScript. Não publique uma senha no repositório e não envie senhas pelo chat. A URL do projeto e a chave **publishable** (ou a chave legada **anon**) são configurações públicas, não credenciais administrativas. A proteção efetiva está nas funções e permissões do banco.
+Não há senha padrão nem senha embutida no JavaScript. Não publique uma senha no repositório e não envie senhas pelo chat. A URL do projeto e a chave **publishable default** são configurações públicas, não credenciais administrativas. A proteção efetiva está nas funções e permissões do banco. O login por usuário exige essa mesma chave `default`; a chave legada `anon` não é aceita neste cliente.
 
 ## 1. Preparar um projeto Supabase
 
@@ -37,6 +37,38 @@ where user_id = 'UUID-DO-USUARIO'::uuid;
 
 A revogação passa a valer nas próximas chamadas ao banco, inclusive se houver uma sessão ainda aberta. A senha e a recuperação da conta são gerenciadas no Supabase, não no repositório. Não conceda acesso à administração do projeto a quem só precisa editar produtos.
 
+## 2.1. Configurar o login por nome de usuário
+
+O formulário pede **nome de usuário e senha**. O Supabase Auth continua usando um e-mail real para identificar a conta. A Edge Function `admin-login` associa os dois no servidor, autentica a senha e confirma que a conta pertence à lista privada de administradores antes de devolver uma sessão.
+
+Configure somente no ambiente privado de **Edge Functions → Secrets**, nunca em `config.js` ou no repositório:
+
+- `MARAVI_ADMIN_USERNAME`: o identificador escolhido, como `maravi`, de 3 a 32 caracteres minúsculos, números, ponto, sublinhado ou hífen.
+- `MARAVI_ADMIN_EMAIL`: e-mail real da mesma conta criada em Authentication. Não é um endereço fictício.
+- `MARAVI_ALLOWED_ORIGINS`: origens exatas do painel, separadas por vírgula, sem caminho nem barra final. Use HTTPS em produção. Origens locais HTTP são aceitas apenas para localhost/127.0.0.1/::1 durante testes.
+
+A função usa os valores `SUPABASE_URL` e `SUPABASE_PUBLISHABLE_KEYS.default` fornecidos pelo projeto. Verifique sua disponibilidade antes de implantar. Ela não lê nem precisa de `service_role`, `sb_secret_` ou senha do banco. O arquivo `supabase/config.toml` documenta `verify_jwt = false` **apenas para esta função de login**, porque o usuário ainda não tem uma sessão nessa etapa; a própria função verifica a senha e a autorização. Isso não remove a proteção dos RPCs administrativos.
+
+Implante os dois arquivos `index.ts` e `handler.mjs` somente após autorização de publicação. Configurar secrets ou publicar este código não cria a conta no Auth. Não configure o site para usar login por usuário antes de validar a função implantada, pois não existe fallback silencioso para login direto por e-mail.
+
+O e-mail não aparece no formulário nem no JavaScript público. O JWT da conta autenticada pode conter seu e-mail, visível a quem inspecionar tecnicamente a própria sessão. Quem controla a caixa de e-mail de recuperação pode redefinir a senha e assumir esse acesso. O nome de usuário não é um segredo e não deve ser tratado como proteção contra ataques.
+
+### Limites de autenticação e liberação
+
+- A função valida origem, método, chave pública, formato, tamanho e tempo de leitura do corpo. Nunca aceita e-mail ou URL de destino enviados pelo navegador. CORS não impede clientes externos de chamar o endpoint.
+- A senha é enviada somente por HTTPS ao projeto configurado. A resposta contém apenas token de acesso e tempo de expiração, sem objeto de usuário nem token de renovação. A aplicação não registra corpos, senhas ou tokens; a plataforma pode manter seus próprios logs de acesso.
+- A proteção nativa de tentativas do Supabase continua ativa. Pelo proxy da Edge Function, requisições podem compartilhar o IP de saída do servidor. Não encaminhe cabeçalhos de IP arbitrários nem prometa limites individuais por navegador.
+- **Antes da liberação pública**, testar abuso e decidir explicitamente entre aceitar os limites nativos para esta operação ou adicionar proteção compartilhada contra tentativas repetidas/CAPTCHA. Contadores apenas em memória da função não são uma proteção distribuída. Evite bloqueios permanentes que um atacante possa causar ao único administrador.
+- Testes locais usam respostas simuladas. Login real, ausência de cadastro público, revogação, configuração de origens e execução no Deno/Supabase devem ser verificados no projeto antes de ativar.
+
+### Redefinição de senha: manutenção manual
+
+Por decisão do responsável, esta entrega **não inclui recuperação por link, tela de retorno ou formulário de redefinição de senha**. Se a usuária esquecer a senha, deve pedir ao responsável que faça a manutenção da conta no Supabase. O login por nome de usuário permanece associado ao e-mail real cadastrado, sem expor esse endereço no formulário público.
+
+A recuperação manual é o escopo escolhido, não uma tela pendente de implementação. **Nenhuma redefinição real foi executada ou validada nesta entrega.** O responsável deverá confirmar o procedimento seguro disponível no projeto e testar o novo login antes de considerar uma solicitação resolvida. Não envie links de recuperação apontando para `admin.html`: o painel não processa esses retornos. Não registre a nova senha em código, logs ou chat.
+
+Referências: [login por senha](https://supabase.com/docs/reference/javascript/auth-signinwithpassword), [variáveis de ambiente](https://supabase.com/docs/guides/functions/secrets), [limites de Auth](https://supabase.com/docs/guides/auth/rate-limits) e [recuperação de senha](https://supabase.com/docs/guides/auth/passwords).
+
 ## 3. Configurar o site
 
 Edite somente os valores públicos de `config.js`:
@@ -48,9 +80,9 @@ window.MARAVI_CONFIG = Object.freeze({
 });
 ```
 
-Copie a URL e a chave nas configurações de API do projeto. Use a URL HTTPS da raiz do projeto, sem `/rest/v1` no final. **Nunca use `service_role`, uma chave `sb_secret_…`, senha do banco ou token administrativo nesse arquivo.** Não coloque segredos em GitHub Pages, variáveis que são incorporadas ao JavaScript durante o build ou arquivos públicos.
+Copie a URL e a chave publishable chamada **default** nas configurações de API do projeto, a mesma disponível à função em `SUPABASE_PUBLISHABLE_KEYS.default`. Use a URL HTTPS da raiz do projeto, sem `/rest/v1` no final. **Nunca use `service_role`, uma chave `sb_secret_…`, senha do banco ou token administrativo nesse arquivo.** Não coloque segredos em GitHub Pages, variáveis que são incorporadas ao JavaScript durante o build ou arquivos públicos.
 
-O formulário de login envia a senha diretamente ao serviço de autenticação por HTTPS. Os tokens de sessão ficam somente na memória da página, não em `localStorage`, arquivos ou no repositório. Recarregar ou fechar o painel pode exigir novo login. A senha não fica no catálogo.
+O formulário de login envia usuário e senha à função `admin-login` por HTTPS, que repassa a autenticação ao Supabase Auth. Os tokens de sessão ficam somente na memória da página, não em `localStorage`, arquivos ou no repositório. Recarregar ou fechar o painel pode exigir novo login. A senha não fica no catálogo.
 
 Abra `admin.html` no endereço do site de testes. Para conferir os arquivos localmente, a partir da raiz do repositório:
 

@@ -23,11 +23,11 @@
       <p>Entre para cuidar dos produtos, sabores e disponibilidade.</p>
       <p id="setup-notice" class="notice" hidden>O painel ainda não foi conectado ao banco de dados. Configure o backend conforme o guia de instalação antes de entrar. Nenhuma alteração pode ser publicada neste estado.</p>
       <form id="login-form">
-        <label for="email">E-mail de administração</label><input id="email" type="email" autocomplete="username" required maxlength="254">
+        <label for="username">Nome de usuário</label><input id="username" type="text" autocomplete="username" autocapitalize="none" spellcheck="false" required minlength="3" maxlength="32" pattern="[A-Za-z0-9][A-Za-z0-9._\-]{2,31}" placeholder="Seu usuário">
         <label for="password">Senha</label><input id="password" type="password" autocomplete="current-password" required maxlength="1024">
         <button id="login-button" type="submit" class="primary">Entrar no painel</button>
       </form>
-      <p class="hint">A sessão termina ao recarregar ou fechar esta página. Esqueceu a senha? Solicite a recuperação ao responsável pelo backend.</p>
+      <p class="hint">A sessão termina ao recarregar ou fechar esta página. Esqueceu a senha? Fale com o responsável pelo painel.</p>
     </section>
     <section id="workspace" hidden>
       <div class="heading"><div><span class="eyebrow">PAINEL DA DOCERIA</span><h1>Cuidar do cardápio.</h1><p>Um só lugar para os doces que vão ao ar.</p></div><button id="logout" class="secondary" type="button">Sair da conta</button></div>

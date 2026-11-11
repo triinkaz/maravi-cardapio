@@ -7,7 +7,7 @@ function submit(w,id){w.document.getElementById(id).dispatchEvent(new w.Event('s
 const click=(w,id)=>w.document.getElementById(id).click();
 const set=(w,id,v)=>{w.document.getElementById(id).value=v};
 function prepareAdmin(backend){const dom=setup('admin.html');dom.window.MaraviBackend=backend;dom.window.eval(read('catalog-model.js'));dom.window.eval(read('admin.js'));return dom}
-async function login(w){set(w,'email','test@example.test');set(w,'password','local-test-only');submit(w,'login-form');await settle()}
+async function login(w){set(w,'username','maravi');set(w,'password','local-test-only');submit(w,'login-form');await settle()}
 function backend(overrides={}){return {configured:true,login:async()=>({accessToken:'test-memory-only',expiresAt:Date.now()+3600000}),getAdminCatalog:async()=>({revision:1,catalog:{products:[product()]}}),saveAdminCatalog:async(token,revision,catalog)=>({revision:revision+1,catalog}),logout:async()=>{},...overrides}}
 test('admin is closed until configured and no password or session persists',async()=>{
  const dom=prepareAdmin({configured:false});const w=dom.window;assert.equal(w.document.getElementById('login-button').disabled,true);assert.equal(w.document.getElementById('setup-notice').hidden,false);dom.window.close();
