@@ -27,12 +27,10 @@ Teste de navegador opcional:
 
 ```sh
 npx playwright install chromium
-python3 -m http.server 8765
-# Em outro terminal:
 npm run test:browser
 ```
 
-`TEST_BASE_URL` altera o endereço de teste; `CHROMIUM_PATH` permite usar Chromium já instalado. Os testes simulam o backend e não enviam pedidos. As verificações contra Supabase real e a inspeção visual devem ser concluídas antes da ativação em produção.
+O comando inicia um servidor local temporário. `CHROMIUM_PATH` permite usar Chromium já instalado. Os testes simulam o backend, bloqueiam acessos externos e não enviam pedidos. O workflow do PR executa os mesmos testes com permissão somente de leitura e guarda capturas por sete dias; não faz deploy. As verificações contra Supabase real e a inspeção visual devem ser concluídas antes da ativação em produção.
 
 ## Publicação e arquivos
 
