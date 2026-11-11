@@ -43,7 +43,7 @@ async function run() {
     await page.locator('[data-add="classic-nutella"]').click();
     if (width <= 800) await page.locator('#mobile-cart-button').click();
     await page.locator('#customer-name').fill('Cliente teste');
-    await page.locator('input[name="fulfillment"][value="entrega"]').check();
+    await page.locator('input[name="fulfillment"][value="entrega"]').locator('..').click();
     await page.locator('#address').fill('Rua de teste, 100');
     await page.locator('#payment').selectOption('Pix');
     assert.equal(await page.locator('#order-date').innerText(), '11/11/2026');
@@ -65,9 +65,9 @@ async function run() {
     await page.goBack(); await page.waitForSelector('.product-card');
     if (width <= 800 && !await page.locator('#customer-name').isVisible()) await page.locator('#mobile-cart-button').click();
     await page.locator('#customer-name').fill('Cliente teste');
-    await page.locator('input[name="fulfillment"][value="entrega"]').check();
+    await page.locator('input[name="fulfillment"][value="entrega"]').locator('..').click();
     await page.locator('#address').fill('Rua de teste, 100');
-    await page.locator('input[name="orderTiming"][value="agendar"]').check();
+    await page.locator('input[name="orderTiming"][value="agendar"]').locator('..').click();
     assert.equal(await page.locator('#today-details').isVisible(), false);
     assert.equal(await page.locator('#payment').isVisible(), false);
     assert.equal(await page.locator('#schedule-details').isVisible(), true);
@@ -88,8 +88,8 @@ async function run() {
     await page.goBack(); await page.waitForSelector('.product-card');
     if (width <= 800 && !await page.locator('#customer-name').isVisible()) await page.locator('#mobile-cart-button').click();
     await page.locator('#customer-name').fill('Cliente teste');
-    await page.locator('input[name="orderTiming"][value="hoje"]').check();
-    await page.locator('input[name="fulfillment"][value="retirada"]').check();
+    await page.locator('input[name="orderTiming"][value="hoje"]').locator('..').click();
+    await page.locator('input[name="fulfillment"][value="retirada"]').locator('..').click();
     await page.locator('#payment').selectOption('Dinheiro'); await page.locator('#change').fill('50');
     assert.equal(await page.locator('#payment option:enabled').count(), 5);
     assert.equal(await page.locator('#address-wrap').isVisible(), false);
