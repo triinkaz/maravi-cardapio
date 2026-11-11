@@ -9,7 +9,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   checks:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
@@ -21,7 +21,12 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run check
-      - run: npx playwright install --with-deps chromium
+      - name: Usar Chrome da imagem oficial do GitHub
+        run: |
+          BROWSER="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium)"
+          test -x "$BROWSER"
+          "$BROWSER" --version
+          echo "CHROMIUM_PATH=$BROWSER" >> "$GITHUB_ENV"
       - run: npm run test:browser
       - name: Guardar capturas dos testes
         if: always()
