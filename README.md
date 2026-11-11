@@ -4,7 +4,7 @@ Site do cardápio da Maravi Doceria. O cliente escolhe os itens, informa entrega
 
 ## Painel administrativo
 
-Abra `admin.html` para administrar produtos, preços, disponibilidade, estoque manual e sabores de caixas de quatro. As edições ficam em rascunho até clicar em **Publicar alterações**. O painel permite criar, editar, inativar e excluir produtos.
+Abra `admin.html` para administrar produtos, preços, disponibilidade, estoque manual, fotos e sabores de caixas de quatro. As edições ficam em rascunho até clicar em **Publicar alterações**. O painel permite criar, editar, inativar e excluir produtos. Novas fotos JPG, PNG ou WebP de até 5 MiB podem ser enviadas pelo editor; o navegador as otimiza em WebP antes de carregar no Storage.
 
 **A ativação está pendente:** o repositório não contém senha padrão nem projeto Supabase configurado. O login por nome de usuário e os salvamentos só funcionam depois de seguir [o guia de configuração](docs/ADMIN_SETUP.md). Não coloque senhas ou chaves administrativas em arquivos públicos.
 
@@ -40,7 +40,8 @@ O GitHub Pages publica a raiz de `main`. Uma branch/PR de revisão não ativa o 
 - `supabase/schema.sql`: banco, funções e catálogo inicial.
 - `supabase/functions/admin-login/`: login por usuário, ainda dependente de configuração e deploy autorizados.
 - `app.js`: catálogo estático inicial, WhatsApp e regras de pedidos/promoções.
-- `assets/`: fotos; o painel escolhe arquivos já publicados, sem upload.
+- `assets/`: fotos originais; continuam funcionando junto das novas fotos enviadas pelo painel.
+- `supabase/product-images.sql` e [guia de fotos](docs/PRODUCT_IMAGES.md): bucket público, permissões de upload somente para administradores e limites de imagem.
 - `admin.html`, `admin.js`, `admin.css`: administração.
 - `styles.css` e `index.html`: apresentação do cardápio.
 

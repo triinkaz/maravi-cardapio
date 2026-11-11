@@ -40,3 +40,35 @@ test('configured storefront never falls back to stale defaults on connection fai
 test('live storefront recovers malformed stored cart without blocking catalog load',async()=>{
  const d=setup('index.html'),w=d.window;w.localStorage.setItem('maravi-cart-v1','[null,1,{"id":"missing"}]');w.MaraviBackend={configurationProvided:true,getPublicCatalog:async()=>({revision:1,catalog:{products:[product()]}})};w.eval(read('catalog-model.js'));w.eval(read('app.js'));await settle();assert.equal(w.document.querySelectorAll('.product-card').length,1);assert.equal(w.document.getElementById('cart-count').textContent,'0');d.window.close();
 });
+
+const uploadedImage='https://dkllcttqkyazbkqygixv.supabase.co/storage/v1/object/public/product-images/products/12345678-1234-4123-8123-123456789abc.webp';
+function selectPhoto(w){const input=w.document.getElementById('product-photo');Object.defineProperty(input,'files',{configurable:true,value:[new w.File(['photo'],'photo.png',{type:'image/png'})]});input.dispatchEvent(new w.Event('change'));}
+test('admin photo upload is single-flight and only changes the catalog after applying and publishing',async()=>{
+ let finish,uploads=0,saved;
+ const d=prepareAdmin(backend({uploadProductImage:()=>{uploads++;return new Promise(r=>finish=r)},saveAdminCatalog:async(t,r,c)=>{saved=c;return {revision:r+1,catalog:c}}})),w=d.window;
+ await login(w);w.document.querySelector('[data-edit]').click();selectPhoto(w);click(w,'upload-image');click(w,'upload-image');
+ assert.equal(uploads,1);assert.equal(w.document.getElementById('apply-product').disabled,true);assert.equal(w.document.getElementById('product-image').disabled,true);
+ submit(w,'product-form');assert.equal(w.document.getElementById('editor').open,true);
+ finish({image:uploadedImage,path:'products/test.webp'});await settle();
+ assert.equal(w.document.getElementById('product-image').value,uploadedImage);assert.equal(w.document.getElementById('product-image-preview').getAttribute('src'),uploadedImage);assert.equal(saved,undefined);
+ submit(w,'product-form');assert.equal(saved,undefined);click(w,'publish');await settle();assert.equal(saved.products[0].image,uploadedImage);d.window.close();
+});
+test('cancelled or expired photo uploads never overwrite a newer editor or session',async()=>{
+ let finish;const d=prepareAdmin(backend({uploadProductImage:()=>new Promise(r=>finish=r)})),w=d.window;
+ await login(w);w.document.querySelector('[data-edit]').click();selectPhoto(w);click(w,'upload-image');click(w,'cancel-editor');click(w,'new-product');
+ finish({image:uploadedImage});await settle();assert.equal(w.document.getElementById('product-image').value,'assets/classic-nutella.webp');assert.equal(w.document.getElementById('apply-product').disabled,false);
+ click(w,'cancel-editor');w.document.querySelector('[data-edit]').click();selectPhoto(w);click(w,'upload-image');click(w,'logout');finish({image:uploadedImage});await settle();
+ assert.equal(w.document.getElementById('workspace').hidden,true);assert.equal(w.document.getElementById('product-image-preview').hasAttribute('src'),false);d.window.close();
+});
+test('photo upload failures preserve the current photo and authorization failures end the session',async()=>{
+ let denied=false;const d=prepareAdmin(backend({uploadProductImage:async()=>{throw Object.assign(new Error('Foto inválida.'),{status:denied?403:0})}})),w=d.window;
+ await login(w);w.document.querySelector('[data-edit]').click();selectPhoto(w);click(w,'upload-image');await settle();
+ assert.match(w.document.getElementById('upload-status').textContent,/Foto inválida/);assert.equal(w.document.getElementById('product-image').value,'assets/classic-nutella.webp');assert.equal(w.document.getElementById('apply-product').disabled,false);
+ denied=true;click(w,'upload-image');await settle();assert.equal(w.document.getElementById('workspace').hidden,true);d.window.close();
+});
+test('photo preview never loads an arbitrary URL and invalid upload responses are rejected',async()=>{
+ const d=prepareAdmin(backend({uploadProductImage:async()=>({image:'https://untrusted.example/photo.webp'})})),w=d.window;
+ await login(w);w.document.querySelector('[data-edit]').click();set(w,'product-image','https://untrusted.example/photo.webp');w.document.getElementById('product-image').dispatchEvent(new w.Event('input'));
+ assert.equal(w.document.getElementById('product-image-preview').hasAttribute('src'),false);submit(w,'product-form');assert.match(w.document.getElementById('editor-error').textContent,/Envie uma foto/);
+ set(w,'product-image','assets/classic-nutella.webp');selectPhoto(w);click(w,'upload-image');await settle();assert.match(w.document.getElementById('upload-status').textContent,/imagem inválida/);assert.equal(w.document.getElementById('product-image').value,'assets/classic-nutella.webp');d.window.close();
+});

@@ -7,16 +7,17 @@
   const money = cents => (cents / 100).toLocaleString('pt-BR', {style:'currency', currency:'BRL'});
   let token = null, expiryTimer, generation = 0, revision = null;
   let catalog = {products:[]}, original = '', busy = false, loginBusy = false;
-  let editId = null, editorBaseline = '';
+  let editId = null, editorBaseline = '', editorGeneration = 0, uploadBusy = false;
   const imageNames = ['classic-nutella','double-chocolate','red-ninho','dark-cacau','kinder-classic','rabanada','selecao-maravi','aconchego','cenourito','ninho-frutas','maracuja-chocolate','quarteto-maravi','com-carinho','feliz-aniversario'];
   $('images').replaceChildren(...imageNames.map(name => {const option=document.createElement('option');option.value=`assets/${name}.webp`;return option;}));
   const changed = () => JSON.stringify(catalog) !== original;
   function message(text, error=false) {$('status').textContent=text;$('status').classList.toggle('error',error);$('status').hidden=!text;}
   function resetSession(text='') {
-    generation++; token=null; clearTimeout(expiryTimer); busy=false; loginBusy=false;
+    generation++; editorGeneration++; token=null; clearTimeout(expiryTimer); busy=false; loginBusy=false; setUploadBusy(false);
     catalog={products:[]}; original=''; revision=null;
     if ($('editor').open) $('editor').close();
     $('product-form').reset(); $('flavors').replaceChildren(); $('products').replaceChildren();
+    $('product-image-preview').removeAttribute('src'); $('product-image-preview').hidden=true;
     $('summary').replaceChildren(); $('workspace').hidden=true; $('login-section').hidden=false;
     $('password').value=''; $('login-button').disabled=!backend?.configured; message(text,!!text);
   }
@@ -112,8 +113,22 @@
     row.append(label,activeLabel,remove);$('flavors').append(row);
   }
   function editorState(){return JSON.stringify({values:[...$('product-form').querySelectorAll('input,textarea,select')].map(input=>input.type==='checkbox'?input.checked:input.value)});}
-  function closeEditor(){if(editorState()!==editorBaseline&&!confirm('Descartar as alterações deste formulário?'))return;$('editor').close();}
+  function setUploadBusy(value) {
+    uploadBusy=value;
+    $('product-photo').disabled=value;
+    $('upload-image').disabled=value||!$('product-photo').files?.length||typeof backend?.uploadProductImage!=='function';
+    $('product-image').disabled=value;
+    $('apply-product').disabled=value;
+  }
+  function updateImagePreview() {
+    const image=$('product-image').value.trim();
+    const valid=window.MaraviCatalog.validProductImage(image);
+    $('product-image-preview').hidden=!valid;
+    if(valid) $('product-image-preview').src=image; else $('product-image-preview').removeAttribute('src');
+  }
+  function closeEditor(){if((uploadBusy||editorState()!==editorBaseline)&&!confirm('Descartar as alterações deste formulário? Uma foto já enviada não será usada no produto.'))return;editorGeneration++;setUploadBusy(false);$('editor').close();}
   function openEditor(product) {
+    editorGeneration++;setUploadBusy(false);
     editId=product?.id||null;$('promotion-notice').hidden=editId!=='quarteto-maravi';$('product-form').reset();$('editor-error').hidden=true;
     $('editor-title').textContent=product?'Editar produto':'Novo produto';
     const p=product||{id:'',name:'',category:'',description:'',weight:'',price_cents:0,image:'assets/classic-nutella.webp',active:true,stock:null,custom:null,flavors:[]};
@@ -121,14 +136,40 @@
     $('product-id').readOnly=!!product;$('product-price').value=p.price_cents?(p.price_cents/100).toFixed(2):'';
     $('product-stock').value=p.stock??'';$('product-active').checked=p.active;$('product-type').value=p.custom||'';
     $('flavors').replaceChildren();p.flavors.forEach(addFlavor);$('flavors-section').hidden=!p.custom;
+    $('upload-status').textContent='JPG, PNG ou WebP, até 5 MB. A foto será otimizada antes do envio.';$('upload-status').classList.remove('error');setUploadBusy(false);updateImagePreview();
     editorBaseline=editorState();$('editor').showModal();$('product-name').focus();
   }
+  $('product-image').addEventListener('input',updateImagePreview);
+  $('product-photo').addEventListener('change',()=>{
+    if(uploadBusy)return;
+    const file=$('product-photo').files?.[0];
+    $('upload-status').classList.remove('error');
+    $('upload-status').textContent=file?'Foto selecionada. Clique em “Enviar foto” para carregá-la.':'JPG, PNG ou WebP, até 5 MB.';
+    setUploadBusy(false);
+  });
+  $('upload-image').addEventListener('click',async()=>{
+    const file=$('product-photo').files?.[0];
+    if(uploadBusy||busy||!token||!file||!$('editor').open||typeof backend.uploadProductImage!=='function')return;
+    const current=generation, currentEditor=editorGeneration;
+    setUploadBusy(true);$('upload-status').classList.remove('error');$('upload-status').textContent='Otimizando e enviando foto…';
+    try {
+      const result=await backend.uploadProductImage(token,file);
+      if(current!==generation||currentEditor!==editorGeneration||!$('editor').open)return;
+      if(!window.MaraviCatalog.validProductImage(result?.image))throw new Error('O servidor retornou uma imagem inválida.');
+      $('product-image').value=result.image;$('product-photo').value='';updateImagePreview();
+      $('upload-status').textContent='Foto enviada. Aplique ao rascunho e publique quando terminar.';
+    } catch(error) {
+      if(current!==generation||currentEditor!==editorGeneration||!$('editor').open)return;
+      if(error.status===401||error.status===403){fail(error);return;}
+      $('upload-status').textContent=error.message||'Não foi possível enviar a foto. Tente novamente.';$('upload-status').classList.add('error');
+    } finally {if(current===generation&&currentEditor===editorGeneration)setUploadBusy(false);}
+  });
   $('close-editor').addEventListener('click',closeEditor);$('cancel-editor').addEventListener('click',closeEditor);
   $('editor').addEventListener('cancel',event=>{event.preventDefault();closeEditor();});
   $('add-flavor').addEventListener('click',()=>{addFlavor();$('flavors').lastElementChild?.querySelector('input').focus();});
   $('product-type').addEventListener('change',()=>{$('flavors-section').hidden=!$('product-type').value;$('flavors').querySelectorAll('input').forEach(input=>input.disabled=!$('product-type').value);if($('product-type').value&&!$('flavors').children.length)addFlavor();});
   $('product-form').addEventListener('submit',event=>{
-    event.preventDefault();if(!token||busy)return;
+    event.preventDefault();if(!token||busy||uploadBusy)return;
     const value=name=>$('product-'+name).value.trim();
     const custom=value('type')||null;
     const flavors=custom?[...$('flavors').children].map(row=>({name:row.querySelector('.flavor-input').value.trim(),active:row.querySelector('[type=checkbox]').checked})):[];
@@ -141,7 +182,7 @@
     else if(catalog.products.some(x=>x.id===p.id&&x.id!==editId))error='Este identificador já existe. Escolha outro.';
     else if(!Number.isFinite(price)||cents<=0||cents>1000000||Math.abs(price*100-cents)>0.00001)error='Informe um preço positivo com até duas casas decimais.';
     else if(stock!==null&&(!Number.isInteger(stock)||stock<0||stock>99999))error='O estoque deve ser um número inteiro entre 0 e 99999, ou ficar vazio.';
-    else if(!/^assets\/[a-z0-9]+(-[a-z0-9]+)*\.webp$/.test(p.image))error='Use o caminho de uma imagem .webp já publicada na pasta assets.';
+    else if(!window.MaraviCatalog.validProductImage(p.image))error='Envie uma foto pelo painel ou escolha uma imagem válida já publicada.';
     else if(custom&&(!flavors.length||flavors.length>20||flavors.some(f=>!f.name||['__proto__','constructor','prototype'].includes(f.name.toLowerCase()))))error='Cadastre de 1 a 20 sabores com nomes válidos.';
     else if(new Set(flavors.map(f=>f.name.toLocaleLowerCase('pt-BR'))).size!==flavors.length)error='Cada sabor precisa ter um nome diferente.';
     if(error){$('editor-error').textContent=error;$('editor-error').hidden=false;return;}

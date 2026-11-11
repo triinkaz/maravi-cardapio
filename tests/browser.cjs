@@ -8,7 +8,7 @@ const root = path.resolve(__dirname, '..');
 const raw = fs.readFileSync(path.join(root, 'app.js'), 'utf8');
 const data = vm.runInNewContext(raw.slice(0, raw.indexOf('const backend =')) + ';({products:DEFAULT_PRODUCTS,options:DEFAULT_OPTIONS})');
 const products = data.products.map(({ price, ...p }) => ({ ...p, price_cents: Math.round(price * 100), image: `assets/${p.id}.webp`, active: true, stock: null, custom: p.custom || null, flavors: (data.options[p.custom] || []).map(name => ({ name, active: true })) }));
-const apiOrigin = 'https://example.supabase.co';
+const apiOrigin = 'https://dkllcttqkyazbkqygixv.supabase.co';
 const output = path.join(root, 'test-results');
 const errors = [];
 let browser, server, base;
@@ -39,7 +39,7 @@ async function makeContext(state) {
     if (url.origin === base) return route.continue();
     // No test sends data to Supabase, WhatsApp, Google Fonts or any real service.
     if (!state || url.origin !== apiOrigin) return route.abort();
-    const headers = { 'access-control-allow-origin': '*', 'access-control-allow-headers': 'apikey,authorization,content-type', 'access-control-allow-methods': 'POST,OPTIONS' };
+    const headers = { 'access-control-allow-origin': '*', 'access-control-allow-headers': 'apikey,authorization,content-type,x-upsert,cache-control', 'access-control-allow-methods': 'POST,OPTIONS' };
     const reply = (status, body) => route.fulfill({ status, headers, contentType: 'application/json', ...(status === 204 ? {} : { body: JSON.stringify(body) }) });
     if (req.method() === 'OPTIONS') return reply(204);
     if (url.pathname === '/functions/v1/admin-login') {
@@ -47,11 +47,19 @@ async function makeContext(state) {
       return reply(200, { access_token: 'test-memory-only-session', expires_in: 3600 });
     }
     if (url.pathname === '/auth/v1/logout') return reply(204);
+    if (url.pathname.startsWith('/storage/v1/object/public/product-images/')) return route.fulfill({status:200,headers,contentType:'image/webp',body:fs.readFileSync(path.join(root,'assets/classic-nutella.webp'))});
     if (url.pathname === '/rest/v1/rpc/get_public_catalog') {
       if (state.fail) return reply(503, {});
       return reply(200, { revision: state.revision, catalog: { products: state.products.filter(p => p.active).map(p => ({ ...p, flavors: p.flavors.filter(f => f.active) })) } });
     }
     if (req.headers().authorization !== 'Bearer test-memory-only-session') return reply(401, {});
+    if (url.pathname.startsWith('/storage/v1/object/product-images/products/')) {
+      state.uploads=(state.uploads||0)+1;
+      assert.equal(req.method(),'POST');assert.equal(req.headers()['content-type'],'image/webp');assert.equal(req.headers()['x-upsert'],'false');
+      assert.match(url.pathname,/\/products\/[0-9a-f-]{36}\.webp$/);
+      const data=req.postDataBuffer();assert.equal(data.subarray(0,4).toString(),'RIFF');assert.equal(data.subarray(8,12).toString(),'WEBP');
+      return reply(200,{Key:url.pathname.slice('/storage/v1/object/'.length)});
+    }
     if (url.pathname === '/rest/v1/rpc/admin_get_catalog') return reply(200, { revision: state.revision, catalog: { products: state.products } });
     if (url.pathname === '/rest/v1/rpc/admin_save_catalog') {
       state.saves = (state.saves || 0) + 1;
@@ -141,6 +149,9 @@ async function run() {
   assert.equal(await a.evaluate(() => localStorage.length + sessionStorage.length), 0);
   await screenshot(a, 'admin-produtos-desktop');
   await a.locator('[data-edit="classic-nutella"]').click();
+  await a.locator('#product-photo').setInputFiles(path.join(root,'assets/classic-nutella.webp'));
+  await a.locator('#upload-image').click();await a.getByText('Foto enviada.',{exact:false}).waitFor();
+  assert.equal(state.uploads,1);assert.match(await a.locator('#product-image').inputValue(),/\/storage\/v1\/object\/public\/product-images\/products\//);
   await a.locator('#product-name').fill('Cookie atualizado'); await a.locator('#product-stock').fill('0');
   await a.locator('#product-form button[type="submit"]').click();
   assert.match(await a.locator('#products').innerText(), /Cookie atualizado/);
@@ -148,6 +159,7 @@ async function run() {
   await a.locator('#publish').click(); await a.getByText('Versão 2', { exact: false }).waitFor();
   assert.equal(await a.locator('#publish').isDisabled(), true);
   assert.equal(state.saves, 1);
+  assert.match(state.products[0].image,/\/product-images\/products\//);
   await a.locator('#new-product').click();
   await a.locator('#product-name').fill('Caixa nova'); await a.locator('#product-id').fill('caixa-nova');
   await a.locator('#product-category').fill('Caixas'); await a.locator('#product-price').fill('12');

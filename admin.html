@@ -52,13 +52,21 @@
         <label for="product-stock">Estoque disponível<input id="product-stock" type="number" min="0" max="99999" step="1" placeholder="Sem limite"><small>Vazio: não limitar. Zero: esgotado.</small></label>
         <label class="full" for="product-weight">Peso / apresentação<input id="product-weight" maxlength="100"></label>
         <label class="full" for="product-description">Descrição<textarea id="product-description" rows="3" maxlength="1000"></textarea></label>
-        <label class="full" for="product-image">Imagem já publicada<input id="product-image" list="images" pattern="assets/[a-z0-9]+(-[a-z0-9]+)*\.webp" maxlength="100" required placeholder="assets/classic-nutella.webp"><small>Use um arquivo .webp da pasta assets. Este painel não envia novas fotos.</small></label>
+        <section class="full image-editor" aria-labelledby="image-heading">
+          <h3 id="image-heading">Foto do produto</h3>
+          <img id="product-image-preview" class="image-preview" alt="Prévia da foto do produto" hidden>
+          <label for="product-photo">Selecionar nova foto<input id="product-photo" type="file" accept="image/jpeg,image/png,image/webp"></label>
+          <button id="upload-image" type="button" class="secondary" disabled>Enviar foto</button>
+          <p id="upload-status" class="hint" role="status" aria-live="polite">JPG, PNG ou WebP, até 5 MB. A foto será otimizada antes do envio.</p>
+          <label for="product-image">Imagem selecionada<input id="product-image" list="images" maxlength="500" required placeholder="assets/classic-nutella.webp"></label>
+          <p class="hint">Você também pode escolher uma imagem já publicada. A foto só aparece no cardápio depois de aplicar e publicar o rascunho.</p>
+        </section>
         <label for="product-type">Tipo<select id="product-type"><option value="">Produto simples</option><option value="aconchego">Caixa de 4 cookies</option><option value="quarteto">Caixa de 4 brigadeiros</option></select></label>
         <label class="checkbox"><input id="product-active" type="checkbox">Ativo no cardápio</label>
       </div>
       <section id="flavors-section" hidden><h3>Sabores da caixa</h3><p class="hint">O cliente escolhe exatamente 4 unidades entre os sabores ativos. Cadastre até 20 sabores; nomes não podem se repetir. Sem sabores ativos, a caixa fica indisponível.</p><div id="flavors"></div><button id="add-flavor" class="secondary" type="button">+ Adicionar sabor</button></section>
       <p class="hint">Aplicar atualiza somente seu rascunho. Depois, use “Publicar alterações”.</p>
-      <div class="dialog-actions"><button id="cancel-editor" type="button" class="secondary">Cancelar</button><button class="primary" type="submit">Aplicar ao rascunho</button></div>
+      <div class="dialog-actions"><button id="cancel-editor" type="button" class="secondary">Cancelar</button><button id="apply-product" class="primary" type="submit">Aplicar ao rascunho</button></div>
     </form>
   </dialog>
   <datalist id="categories"></datalist><datalist id="images"></datalist>

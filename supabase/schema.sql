@@ -77,9 +77,11 @@ begin
       raise exception using errcode = '22023', message = 'CATALOG_INVALID: price must be 1 to 1000000 cents';
     end if;
     if jsonb_typeof(product->'image') is distinct from 'string'
-       or (product->>'image') !~ '^assets/[a-z0-9][a-z0-9-]*\.webp$'
-       or length(product->>'image') > 100 then
-      raise exception using errcode = '22023', message = 'CATALOG_INVALID: image must be a local assets/slug.webp path';
+       or not (
+         ((product->>'image') ~ '^assets/[a-z0-9]+(-[a-z0-9]+)*\.webp$' and length(product->>'image') <= 100)
+         or (product->>'image') ~ '^https://dkllcttqkyazbkqygixv\.supabase\.co/storage/v1/object/public/product-images/products/[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\.webp$'
+       ) then
+      raise exception using errcode = '22023', message = 'CATALOG_INVALID: image must be a local asset or controlled product-images URL';
     end if;
     if jsonb_typeof(product->'active') is distinct from 'boolean' then
       raise exception using errcode = '22023', message = 'CATALOG_INVALID: active must be boolean';
@@ -214,7 +216,7 @@ declare initial_catalog jsonb := $catalog$
       "name": "Double Chocolate",
       "category": "Cookies clássicos",
       "weight": "Aprox. 110g",
-      "description": "Cacau Black 100%, chocolates 40% e branco, com brigadeiro de chocolate branco.",
+      "description": "Massa de cacau Black 100%, chocolates 40% e branco, com brigadeiro de chocolate branco.",
       "price_cents": 1400,
       "image": "assets/double-chocolate.webp",
       "active": true,
@@ -227,7 +229,7 @@ declare initial_catalog jsonb := $catalog$
       "name": "Red Ninho",
       "category": "Cookies clássicos",
       "weight": "Aprox. 110g",
-      "description": "Red velvet com cacau, chocolate branco e brigadeiro de leite em pó Ninho.",
+      "description": "Massa red velvet com cacau, chocolate branco e brigadeiro de leite em pó Ninho.",
       "price_cents": 1300,
       "image": "assets/red-ninho.webp",
       "active": true,
@@ -240,7 +242,7 @@ declare initial_catalog jsonb := $catalog$
       "name": "Dark Cacau",
       "category": "Cookies clássicos",
       "weight": "Aprox. 110g",
-      "description": "Cacau Black e cacau 100% com muito chocolate 40%. Sem recheio.",
+      "description": "Massa de cacau Black e cacau 100% com muito chocolate 40%. Sem recheio.",
       "price_cents": 1600,
       "image": "assets/dark-cacau.webp",
       "active": true,
@@ -253,7 +255,7 @@ declare initial_catalog jsonb := $catalog$
       "name": "Kinder Classic",
       "category": "Cookies especiais",
       "weight": "Aprox. 128g",
-      "description": "Baunilha, chocolates 40% e branco, creme de Kinder Bueno White e finalização especial.",
+      "description": "Massa clássica de baunilha, chocolates 40% e branco, creme de Kinder Bueno White e finalização especial.",
       "price_cents": 2400,
       "image": "assets/kinder-classic.webp",
       "active": true,
@@ -266,7 +268,7 @@ declare initial_catalog jsonb := $catalog$
       "name": "Rabanada",
       "category": "Cookie natalino",
       "weight": "Aprox. 120g",
-      "description": "Baunilha, manteiga noisette, especiarias, chocolate 40% e doce de leite caseiro.",
+      "description": "Massa clássica de baunilha, manteiga noisette, especiarias, chocolate 40% e doce de leite caseiro.",
       "price_cents": 1300,
       "image": "assets/rabanada.webp",
       "active": true,

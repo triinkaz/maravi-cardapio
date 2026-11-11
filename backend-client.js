@@ -42,7 +42,53 @@
       throw error(cause.name === 'AbortError' ? 'O servidor demorou a responder. Tente novamente.' : 'Sem conexão com o catálogo. Verifique a internet e tente novamente.');
     } finally { clearTimeout(timer); }
   }
+  const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
+  const IMAGE_ORIGIN = 'https://dkllcttqkyazbkqygixv.supabase.co';
+  async function uploadProductImage(token, file) {
+    if (typeof token !== 'string' || !token.trim()) throw error('Sua sessão expirou. Entre novamente.', 401);
+    if (!url || url !== IMAGE_ORIGIN) throw error('O armazenamento de fotos ainda não foi configurado.');
+    if (!file || !['image/jpeg', 'image/png', 'image/webp'].includes(file.type) || typeof file.arrayBuffer !== 'function') throw error('Escolha uma foto JPG, PNG ou WEBP.');
+    if (!Number.isInteger(file.size) || file.size < 1 || file.size > MAX_IMAGE_BYTES) throw error('A foto deve ter no máximo 5 MB.');
+    const bytes = new Uint8Array(await file.slice(0, 12).arrayBuffer());
+    const signature = file.type === 'image/jpeg' ? bytes[0] === 255 && bytes[1] === 216 && bytes[2] === 255
+      : file.type === 'image/png' ? [137,80,78,71,13,10,26,10].every((v,i) => bytes[i] === v)
+      : String.fromCharCode(...bytes.slice(0,4)) === 'RIFF' && String.fromCharCode(...bytes.slice(8,12)) === 'WEBP';
+    if (!signature) throw error('O arquivo não é uma foto válida.');
+    let bitmap;
+    let blob;
+    try {
+      bitmap = await root.createImageBitmap(file);
+      if (!bitmap.width || !bitmap.height || bitmap.width * bitmap.height > 40000000) throw new Error();
+      const scale = Math.min(1, 1600 / Math.max(bitmap.width, bitmap.height));
+      const canvas = root.document.createElement('canvas');
+      canvas.width = Math.max(1, Math.round(bitmap.width * scale));
+      canvas.height = Math.max(1, Math.round(bitmap.height * scale));
+      canvas.getContext('2d').drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+      blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/webp', 0.86));
+      if (!blob || blob.type !== 'image/webp' || blob.size < 1 || blob.size > MAX_IMAGE_BYTES) throw new Error();
+    } catch { throw error('Não foi possível preparar a foto. Use JPG, PNG ou WEBP de até 40 megapixels.'); }
+    finally { if (bitmap) bitmap.close(); }
+    const path = `products/${root.crypto.randomUUID()}.webp`;
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 30000);
+    try {
+      const response = await fetch(`${url}/storage/v1/object/product-images/${path}`, {
+        method: 'POST', headers: { apikey: key, Authorization: `Bearer ${token}`, 'Content-Type': 'image/webp', 'x-upsert': 'false', 'cache-control': '31536000' },
+        body: blob, signal: controller.signal, cache: 'no-store', credentials: 'omit', redirect: 'error'
+      });
+      if (!response.ok) {
+        if (response.status === 401) throw error('Sua sessão expirou. Entre novamente.', 401);
+        if (response.status === 403) throw error('Este usuário não tem permissão para enviar fotos.', 403);
+        throw error('Não foi possível enviar a foto. Tente novamente.', response.status);
+      }
+      return { image: `${url}/storage/v1/object/public/product-images/${path}`, path };
+    } catch (cause) {
+      if ('status' in cause) throw cause;
+      throw error('Não foi possível confirmar o envio da foto. Verifique a conexão e tente novamente.');
+    } finally { clearTimeout(timer); }
+  }
   root.MaraviBackend = Object.freeze({
+    uploadProductImage,
     configured: Boolean(url),
     configurationProvided: Boolean(config.supabaseUrl || config.supabasePublishableKey),
     getPublicCatalog: () => request('/rest/v1/rpc/get_public_catalog', {}),

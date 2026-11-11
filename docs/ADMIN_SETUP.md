@@ -102,6 +102,7 @@ Faça essas verificações com um projeto de testes:
 - Ajuste o estoque para zero e confirme que não é possível adicionar o produto ao pedido. Estoque em branco significa sem limite manual; zero significa esgotado.
 - Abra duas sessões administrativas, carregue a mesma revisão e salve na primeira. A segunda deve receber um conflito e recarregar o catálogo antes de tentar novamente, sem sobrescrever silenciosamente a primeira.
 - Verifique senha incorreta, saída da conta, recarga da página e sessão expirada.
+- Instale `supabase/product-images.sql` depois do esquema principal, seguindo [o guia de fotos](PRODUCT_IMAGES.md). Envie uma foto pelo editor, aplique ao rascunho e publique. Confira que o cardápio mostra a nova foto. Fotos do catálogo são públicas; não envie documentos ou imagens privadas.
 - Uma conta autenticada fora da lista `maravi_private.admins` deve receber `ADMIN_REQUIRED`. Chamadas anônimas de gravação e acesso direto às tabelas devem falhar.
 - Teste o fluxo completo de montagem das caixas e geração do pedido no WhatsApp, sem enviar pedidos fictícios à doceria.
 - Mantenha cópia de segurança do catálogo e confirme a política de backups do plano escolhido antes da operação real.
@@ -115,7 +116,7 @@ Este preparo não faz merge, deploy, migração automática nem mudanças no sit
 - Nome até 100 caracteres, categoria até 80, descrição até 1.000 e peso/apresentação até 100.
 - Estoque manual inteiro de 0 a 99.999, ou `null` para não limitar. **Não há reserva ou baixa automática por pedido.** Abrir/enviar uma mensagem do WhatsApp não comprova uma venda; o responsável deve atualizar o estoque depois da confirmação.
 - Produtos simples não têm sabores. Os tipos de caixa `aconchego` e `quarteto` têm quatro unidades e entre 1 e 20 sabores cadastrados. Sabores podem ser ativados/inativados individualmente. Uma caixa sem sabores ativos não pode ser montada.
-- Fotos devem apontar para arquivos locais `assets/nome-da-foto.webp`. O painel não faz upload. Novas fotos precisam ser adicionadas ao repositório pelo fluxo de revisão habitual antes de usar o caminho. Escolher um caminho válido não garante que o arquivo exista.
+- Fotos podem usar arquivos locais `assets/nome-da-foto.webp` ou URLs estritas do bucket `product-images` do projeto configurado. O editor aceita JPG, PNG e WebP de até 5 MiB e 40 megapixels, convertendo em WebP de até 1600px antes do upload. Só administradores podem enviar; não há sobrescrita nem exclusão pelo painel. Uma foto enviada só é associada ao produto ao aplicar e publicar o rascunho. Cancelar o rascunho não apaga o arquivo enviado. Veja [os detalhes de segurança e manutenção](PRODUCT_IMAGES.md).
 - Remover um produto do catálogo é diferente de inativá-lo. Prefira inativar quando quiser poder oferecê-lo novamente.
 - As promoções e regras do pedido existentes continuam no código do cardápio; este painel não é um editor de promoções nem um sistema de pagamento. Alterações de preços, IDs e nomes dos sabores envolvidos em uma promoção exigem conferir o total mostrado ao cliente.
 

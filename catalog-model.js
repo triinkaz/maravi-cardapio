@@ -1,6 +1,12 @@
 (function (root) {
   'use strict';
   const text = (v, max) => typeof v === 'string' && v.length <= max;
+  function validProductImage(image) {
+    return typeof image === 'string' && (
+      image.length <= 100 && /^assets\/[a-z0-9]+(?:-[a-z0-9]+)*\.webp$/.test(image) ||
+      /^https:\/\/dkllcttqkyazbkqygixv\.supabase\.co\/storage\/v1\/object\/public\/product-images\/products\/[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\.webp$/.test(image)
+    );
+  }
   function normalizeProducts(products) {
     if (!Array.isArray(products) || products.length > 200) throw new Error('Catálogo inválido.');
     const ids = new Set();
@@ -9,7 +15,7 @@
           !text(p.name, 100) || !p.name.trim() || !text(p.category, 80) || !p.category.trim() ||
           !text(p.description, 1000) || !text(p.weight, 100) ||
           !Number.isInteger(p.price_cents) || p.price_cents < 1 || p.price_cents > 1000000 ||
-          !/^assets\/[a-z0-9]+(?:-[a-z0-9]+)*\.webp$/.test(p.image) || p.image.length > 100 || typeof p.active !== 'boolean' ||
+          !validProductImage(p.image) || typeof p.active !== 'boolean' ||
           !(p.stock === null || Number.isInteger(p.stock) && p.stock >= 0 && p.stock <= 99999) ||
           ![null, 'aconchego', 'quarteto'].includes(p.custom) || !Array.isArray(p.flavors) || p.flavors.length > 20) throw new Error('Produto inválido.');
       ids.add(p.id);
@@ -51,7 +57,7 @@
     }
     return result;
   }
-  const api = { normalizeProducts, validOptions, available, maxQuantity, sanitizeCart };
+  const api = { validProductImage, normalizeProducts, validOptions, available, maxQuantity, sanitizeCart };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.MaraviCatalog = Object.freeze(api);
 })(typeof window !== 'undefined' ? window : globalThis);

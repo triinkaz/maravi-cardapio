@@ -1,0 +1,27 @@
+[
+  {
+    "id": "double-chocolate",
+    "previous": "Cacau Black 100%, chocolates 40% e branco, com brigadeiro de chocolate branco.",
+    "updated": "Massa de cacau Black 100%, chocolates 40% e branco, com brigadeiro de chocolate branco."
+  },
+  {
+    "id": "red-ninho",
+    "previous": "Red velvet com cacau, chocolate branco e brigadeiro de leite em pó Ninho.",
+    "updated": "Massa red velvet com cacau, chocolate branco e brigadeiro de leite em pó Ninho."
+  },
+  {
+    "id": "dark-cacau",
+    "previous": "Cacau Black e cacau 100% com muito chocolate 40%. Sem recheio.",
+    "updated": "Massa de cacau Black e cacau 100% com muito chocolate 40%. Sem recheio."
+  },
+  {
+    "id": "kinder-classic",
+    "previous": "Baunilha, chocolates 40% e branco, creme de Kinder Bueno White e finalização especial.",
+    "updated": "Massa clássica de baunilha, chocolates 40% e branco, creme de Kinder Bueno White e finalização especial."
+  },
+  {
+    "id": "rabanada",
+    "previous": "Baunilha, manteiga noisette, especiarias, chocolate 40% e doce de leite caseiro.",
+    "updated": "Massa clássica de baunilha, manteiga noisette, especiarias, chocolate 40% e doce de leite caseiro."
+  }
+]

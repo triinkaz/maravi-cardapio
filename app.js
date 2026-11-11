@@ -1,11 +1,11 @@
 const PHONE = '5512981402888';
 const DEFAULT_PRODUCTS = [
   {id:'classic-nutella',name:'Classic Nutella',category:'Cookies clássicos',price:15,weight:'Aprox. 110g',description:'Massa clássica de baunilha, chocolate 40% e recheio de Nutella.'},
-  {id:'double-chocolate',name:'Double Chocolate',category:'Cookies clássicos',price:14,weight:'Aprox. 110g',description:'Cacau Black 100%, chocolates 40% e branco, com brigadeiro de chocolate branco.'},
-  {id:'red-ninho',name:'Red Ninho',category:'Cookies clássicos',price:13,weight:'Aprox. 110g',description:'Red velvet com cacau, chocolate branco e brigadeiro de leite em pó Ninho.'},
-  {id:'dark-cacau',name:'Dark Cacau',category:'Cookies clássicos',price:16,weight:'Aprox. 110g',description:'Cacau Black e cacau 100% com muito chocolate 40%. Sem recheio.'},
-  {id:'kinder-classic',name:'Kinder Classic',category:'Cookies especiais',price:24,weight:'Aprox. 128g',description:'Baunilha, chocolates 40% e branco, creme de Kinder Bueno White e finalização especial.'},
-  {id:'rabanada',name:'Rabanada',category:'Cookie natalino',price:13,weight:'Aprox. 120g',description:'Baunilha, manteiga noisette, especiarias, chocolate 40% e doce de leite caseiro.'},
+  {id:'double-chocolate',name:'Double Chocolate',category:'Cookies clássicos',price:14,weight:'Aprox. 110g',description:'Massa de cacau Black 100%, chocolates 40% e branco, com brigadeiro de chocolate branco.'},
+  {id:'red-ninho',name:'Red Ninho',category:'Cookies clássicos',price:13,weight:'Aprox. 110g',description:'Massa red velvet com cacau, chocolate branco e brigadeiro de leite em pó Ninho.'},
+  {id:'dark-cacau',name:'Dark Cacau',category:'Cookies clássicos',price:16,weight:'Aprox. 110g',description:'Massa de cacau Black e cacau 100% com muito chocolate 40%. Sem recheio.'},
+  {id:'kinder-classic',name:'Kinder Classic',category:'Cookies especiais',price:24,weight:'Aprox. 128g',description:'Massa clássica de baunilha, chocolates 40% e branco, creme de Kinder Bueno White e finalização especial.'},
+  {id:'rabanada',name:'Rabanada',category:'Cookie natalino',price:13,weight:'Aprox. 120g',description:'Massa clássica de baunilha, manteiga noisette, especiarias, chocolate 40% e doce de leite caseiro.'},
   {id:'selecao-maravi',name:'Seleção Maravi',category:'Cookies tradicionais',price:11.5,weight:'Aprox. 75g · 3 unidades',description:'Uma unidade de cada cookie tradicional. Composição fixa, sem alterações.'},
   {id:'aconchego',name:'Aconchego',category:'Cookies tradicionais',price:15.5,weight:'Aprox. 100g · 4 unidades',description:'Quatro cookies tradicionais à sua escolha. Monte sua combinação.',custom:'aconchego'},
   {id:'cenourito',name:'Cenourito',category:'Caseirinhos',price:16,weight:'Aprox. 170g',description:'Massa de cenoura e brigadeiro de chocolate 50%, finalizado com granulado Melken.'},
