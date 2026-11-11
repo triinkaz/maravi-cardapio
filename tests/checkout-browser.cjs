@@ -63,7 +63,7 @@ async function run() {
     assert.match(messages.at(-1), /\*Pagamento:\* Pix/);
     assert.doesNotMatch(messages.at(-1), /Subtotal/);
     await page.goBack(); await page.waitForSelector('.product-card');
-    if (width <= 800 && !await page.locator('#customer-name').isVisible()) await page.locator('#mobile-cart-button').click();
+    if (width <= 800 && !await page.locator('#pedido').evaluate(el => el.classList.contains('open'))) await page.locator('#mobile-cart-button').click();
     await page.locator('#customer-name').fill('Cliente teste');
     await page.locator('input[name="fulfillment"][value="entrega"]').locator('..').click();
     await page.locator('#address').fill('Rua de teste, 100');
@@ -86,7 +86,7 @@ async function run() {
     assert.match(messages.at(-1), /\*Pagamento:\* a combinar pelo WhatsApp/);
     assert.doesNotMatch(messages.at(-1), /para hoje|11\/11|35–75|Troco|Subtotal/);
     await page.goBack(); await page.waitForSelector('.product-card');
-    if (width <= 800 && !await page.locator('#customer-name').isVisible()) await page.locator('#mobile-cart-button').click();
+    if (width <= 800 && !await page.locator('#pedido').evaluate(el => el.classList.contains('open'))) await page.locator('#mobile-cart-button').click();
     await page.locator('#customer-name').fill('Cliente teste');
     await page.locator('input[name="orderTiming"][value="hoje"]').locator('..').click();
     await page.locator('input[name="fulfillment"][value="retirada"]').locator('..').click();
