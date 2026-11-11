@@ -44,9 +44,9 @@ test('shop date is fixed to Sao Paulo, read-only and refreshes at midnight', t =
   assert.equal(doc.querySelector('#order-date').dateTime, '2026-11-12');
 });
 
-test('weekday delivery restricts only 12:00 <= time < 17:00; weekends, pickup and all other hours stay unrestricted', t => {
+test('Tuesday-Saturday delivery restricts only 12:00 <= time < 17:00; Monday, Sunday, pickup and other hours stay unrestricted', t => {
   const { dom, w } = setup(); t.after(() => dom.window.close());
-  for (const day of ['09', '10', '11', '12', '13']) {
+  for (const day of ['10', '11', '12', '13', '14']) {
     for (const [time, expected] of [
       ['00:00', all], ['11:59', all], ['12:00', ['Pix']], ['16:59', ['Pix']],
       ['17:00', all], ['18:59', all], ['19:00', all], ['21:59', all], ['22:00', all], ['23:59', all]
@@ -57,7 +57,7 @@ test('weekday delivery restricts only 12:00 <= time < 17:00; weekends, pickup an
       assert.deepEqual(Array.from(w.paymentChoices('entrega', 'agendar', now)), []);
     }
   }
-  for (const day of ['14', '15']) for (const time of ['00:00', '12:00', '16:59', '19:00', '23:59']) {
+  for (const day of ['09', '15']) for (const time of ['00:00', '12:00', '16:59', '19:00', '23:59']) {
     assert.deepEqual(Array.from(w.paymentChoices('entrega', 'hoje', new Date(`2026-11-${day}T${time}:00-03:00`))), all);
   }
 });

@@ -70,7 +70,7 @@ function shopClock(now = new Date()) {
   return {
     date: `${parts.year}-${parts.month}-${parts.day}`,
     label: `${parts.day}/${parts.month}/${parts.year}`,
-    weekday: !['Sat', 'Sun'].includes(parts.weekday),
+    pixDay: ['Tue', 'Wed', 'Thu', 'Fri', 'Sat'].includes(parts.weekday),
     minutes: Number(parts.hour) * 60 + Number(parts.minute)
   };
 }
@@ -78,7 +78,7 @@ function paymentChoices(fulfillment, timing, now = new Date()) {
   if (timing === 'agendar') return [];
   const clock = shopClock(now);
   // Only this delivery window has a restriction. No extra out-of-hours rule.
-  if (fulfillment === 'entrega' && clock.weekday && clock.minutes >= 12 * 60 && clock.minutes < 17 * 60) return ['Pix'];
+  if (fulfillment === 'entrega' && clock.pixDay && clock.minutes >= 12 * 60 && clock.minutes < 17 * 60) return ['Pix'];
   return ['Pix', 'Cartão de débito', 'Cartão de crédito', 'Dinheiro'];
 }
 function updateConditionalFields() {
@@ -106,8 +106,8 @@ function updateConditionalFields() {
   byId('payment-wrap').hidden = scheduled;
   byId('payment-hint').hidden = !delivery || scheduled;
   byId('payment-hint').textContent = choices.length === 1
-    ? 'Para entregas de segunda a sexta, das 12h às 17h, o pagamento é por Pix.'
-    : 'Entrega: de segunda a sexta, das 12h às 17h, Pix; das 19h às 22h e aos fins de semana, todas as formas disponíveis.';
+    ? 'Para entregas de terça a sábado, das 12h às 17h, o pagamento é por Pix.'
+    : 'Entrega: de terça a sábado, das 12h às 17h, Pix; das 19h às 22h, todas as formas. Domingo, das 17h às 22h, todas as formas.';
   byId('change-wrap').hidden = payment.value !== 'Dinheiro';
   if (payment.value !== 'Dinheiro') byId('change').value = '';
 }

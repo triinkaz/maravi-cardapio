@@ -98,6 +98,31 @@ async function run() {
     assert.match(messages.at(-1), /\*Troco para:\* 50/);
     assert.doesNotMatch(messages.at(-1), /Endereço|Taxa de entrega|35–75/);
     assert.equal(messages.length, 3);
+    await page.goBack(); await page.waitForSelector('.product-card');
+    if (width <= 800 && !await page.locator('#pedido').evaluate(el => el.classList.contains('open'))) await page.locator('#mobile-cart-button').click();
+    await page.locator('input[name="orderTiming"][value="hoje"]').locator('..').click();
+    await page.clock.setFixedTime(new Date('2026-11-14T15:00:00Z')); // Saturday 12:00 in Sao Paulo.
+    await page.locator('input[name="fulfillment"][value="entrega"]').locator('..').click();
+    await page.evaluate(() => window.dispatchEvent(new Event('focus')));
+    assert.equal(await page.locator('#payment option:enabled').count(), 2);
+    assert.equal(await page.locator('#payment option[value="Dinheiro"]').isDisabled(), true);
+    assert.match(await page.locator('#payment-hint').innerText(), /terça a sábado/);
+    await page.clock.setFixedTime(new Date('2026-11-14T20:00:00Z')); // Saturday 17:00, no added restriction.
+    await page.evaluate(() => window.dispatchEvent(new Event('focus')));
+    assert.equal(await page.locator('#payment option:enabled').count(), 5);
+    await page.locator('#payment').selectOption('Dinheiro');
+    await page.clock.setFixedTime(new Date('2026-11-16T15:00:00Z')); // Monday 12:00 has no Pix-only rule.
+    await page.evaluate(() => window.dispatchEvent(new Event('focus')));
+    assert.equal(await page.locator('#payment option:enabled').count(), 5);
+    assert.equal(await page.locator('#payment').inputValue(), 'Dinheiro');
+    await page.clock.setFixedTime(new Date('2026-11-17T15:00:00Z')); // Tuesday 12:00 clears an invalid cash choice.
+    await page.evaluate(() => window.dispatchEvent(new Event('focus')));
+    assert.equal(await page.locator('#payment option:enabled').count(), 2);
+    assert.equal(await page.locator('#payment').inputValue(), '');
+    await page.clock.setFixedTime(new Date('2026-11-15T20:00:00Z')); // Sunday 17:00 allows all methods.
+    await page.evaluate(() => window.dispatchEvent(new Event('focus')));
+    assert.equal(await page.locator('#payment option:enabled').count(), 5);
+    assert.match(await page.locator('#payment-hint').innerText(), /Domingo, das 17h às 22h/);
     assert.deepEqual(errors, []);
     await context.close();
     console.log(`PASS checkout ${width}px: today/Pix, scheduled, pickup/cash, back navigation and repeated open/close; no real orders sent`);
