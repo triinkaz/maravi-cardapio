@@ -2,6 +2,16 @@
 
 Site do cardápio da Maravi Doceria. O cliente escolhe os itens, informa entrega ou retirada, pagamento e observações, e abre uma mensagem pronta para o WhatsApp. O pedido só é enviado quando o cliente confirma no WhatsApp.
 
+## Prazo e pagamento no checkout
+
+- **Para hoje:** mostra a data atual de `America/Sao_Paulo`, sem campo editável. Delivery informa estimativa de 35–75 minutos, a confirmar pelo WhatsApp. Retirada mantém prazo a confirmar, sem impor prazo de entrega.
+- **Agendar:** data, horário e pagamento são combinados pelo WhatsApp; o site não pede essas escolhas nem inclui valores antigos no resumo.
+- **Pagamento automático:** apenas delivery para hoje, de segunda a sexta entre 12:00 (inclusive) e 17:00 (exclusive), restringe a seleção a Pix. Das 19h às 22h e aos fins de semana todas as formas permanecem disponíveis. Não há nova regra, bloqueio ou cálculo de horário fora dessas faixas. Retirada preserva todas as formas.
+- A data e as opções são atualizadas ao retornar à página, ao abrir o carrinho e antes/depois da confirmação do catálogo. Uma seleção que deixou de ser válida é limpa para o cliente revisar; nenhuma forma é trocada silenciosamente por outra.
+- O total dos produtos e eventuais descontos continuam visíveis, sem repetir o subtotal. Taxa de entrega e confirmação do pedido continuam no WhatsApp.
+
+A escolha automática evita criar mais um controle administrativo e segue o relógio do navegador convertido para o fuso da loja. Não é uma validação de pagamento no servidor: a Maravi continua confirmando o pedido no WhatsApp.
+
 ## Painel administrativo
 
 Abra `admin.html` para administrar produtos, preços, disponibilidade, estoque manual, fotos e sabores de caixas de quatro. As edições ficam em rascunho até clicar em **Publicar alterações**. O painel permite criar, editar, inativar e excluir produtos. Novas fotos JPG, PNG ou WebP de até 5 MiB podem ser enviadas pelo editor; o navegador as otimiza em WebP antes de carregar no Storage.

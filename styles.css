@@ -19,3 +19,6 @@
 .catalog-status .primary-btn{margin-top:1rem}
 
 .test-notice{margin:0;padding:10px 18px;text-align:center;background:#e6efda;color:#234d37;font:12px/1.5 Arial,sans-serif;border-bottom:1px solid #cddbc2}
+
+/* Read-only order timing stays compact in the mobile cart. */
+.timing-details{margin:8px 0 12px}.timing-details p{margin:5px 0}.timing-details>p:first-child{font-size:12px;font-weight:600;color:var(--deep)}
