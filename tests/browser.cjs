@@ -67,7 +67,7 @@ async function makeContext(state) {
   return context;
 }
 async function screenshot(page, name) {
-  await page.screenshot({ path: path.join(output, name + '.png'), fullPage: true });
+  await page.screenshot({ path: path.join(output, name + '.png'), fullPage: !name.includes('mobile'), animations: 'disabled' });
   assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, name + ': horizontal overflow');
 }
 async function login(page) {
@@ -97,6 +97,7 @@ async function run() {
   await page.reload(); await page.waitForSelector('.product-card');
   assert.equal(await page.locator('#cart-count').innerText(), '2');
   await page.setViewportSize({ width: 390, height: 844 });
+  await page.evaluate(() => window.scrollTo(0, 0));
   await screenshot(page, 'cardapio-mobile');
   await page.locator('#mobile-cart-button').click();
   assert.equal(await page.locator('#pedido').evaluate(e => e.classList.contains('open')), true);
@@ -161,7 +162,9 @@ async function run() {
   assert.equal(await a.locator('.product').count(), 1); await a.locator('#filter').selectOption('all');
   state.conflict = true; await a.locator('#publish').click(); await a.getByText('Outra sessão publicou alterações.', { exact: false }).waitFor();
   assert.equal(await a.locator('.product').count(), 15);
-  await a.setViewportSize({ width: 390, height: 844 }); await screenshot(a, 'admin-produtos-mobile');
+  await a.setViewportSize({ width: 390, height: 844 });
+  assert.ok(await a.locator('.badge.empty').evaluate(e => e.getBoundingClientRect().height) < 40, 'Stock badge must remain compact');
+  await a.evaluate(() => window.scrollTo(0, 0)); await screenshot(a, 'admin-produtos-mobile');
   await a.locator('[data-edit="caixa-nova"]').click(); await screenshot(a, 'admin-editor-mobile');
   await a.locator('#cancel-editor').click();
   state.conflict = false; await a.locator('#reload').click(); await a.getByText('Última versão carregada.', { exact: true }).waitFor();
