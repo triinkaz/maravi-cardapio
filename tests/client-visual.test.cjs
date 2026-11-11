@@ -67,3 +67,40 @@ test('existing catalog update map is scoped to exact prior descriptions', () => 
     assert.equal(defaults.find(item => item.id === update.id).description, update.updated);
   }
 });
+
+
+test('Nutella and Dark Cacau thumbnail framing contains both cookie halves without changing other photos', () => {
+  const dom = new JSDOM(`<style>${read('styles.css')}</style>`);
+  const { document } = dom.window;
+  const styleFor = (src, className = 'product-img') => {
+    const image = document.createElement('img');
+    image.className = className;
+    image.setAttribute('src', src);
+    document.body.append(image);
+    return dom.window.getComputedStyle(image);
+  };
+  // Bounds from inspecting the original 360x480 images; simulate the 4:3
+  // cover crop at representative mobile and desktop card widths.
+  for (const [id, top, bottom] of [
+    ['classic-nutella', 212, 414], ['dark-cacau', 248, 442]
+  ]) {
+    const style = styleFor(`assets/${id}.webp`);
+    assert.equal(style.objectFit, 'cover');
+    assert.equal(style.aspectRatio, '4/3');
+    assert.equal(style.objectPosition, '50% 88%');
+    for (const width of [140, 180, 240, 320]) {
+      const height = width * 3 / 4;
+      const scale = Math.max(width / 360, height / 480);
+      const visibleHeight = height / scale;
+      const cropTop = (480 - visibleHeight) * parseFloat(style.objectPosition.split(' ')[1]) / 100;
+      assert.ok(cropTop <= top && cropTop + visibleHeight >= bottom, `${id} at ${width}px`);
+    }
+  }
+  for (const id of ['kinder-classic', 'rabanada']) {
+    assert.equal(styleFor(`assets/${id}.webp`).objectPosition, '50% 76%');
+  }
+  assert.equal(styleFor('assets/classic-nutella.webp', 'hero-photo').objectPosition, '50% 65%');
+  assert.equal(styleFor('assets/red-ninho.webp').objectPosition, '');
+  assert.equal(styleFor('https://test.local/replacement.webp').objectPosition, '');
+  dom.window.close();
+});
