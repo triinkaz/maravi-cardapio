@@ -1,15 +1,48 @@
 # Maravi Doceria — Cardápio e pedidos
 
-Site estático do cardápio da Maravi Doceria. O cliente escolhe os itens, informa entrega ou retirada, forma de pagamento e observações, e abre uma mensagem pronta para o WhatsApp da doceria.
+Site do cardápio da Maravi Doceria. O cliente escolhe os itens, informa entrega ou retirada, pagamento e observações, e abre uma mensagem pronta para o WhatsApp. O pedido só é enviado quando o cliente confirma no WhatsApp.
 
-## Publicação
+## Painel administrativo
 
-Este repositório é publicado pelo GitHub Pages a partir da raiz da branch `main`.
+Abra `admin.html` para administrar produtos, preços, disponibilidade, estoque manual e sabores de caixas de quatro. As edições ficam em rascunho até clicar em **Publicar alterações**. O painel permite criar, editar, inativar e excluir produtos.
 
-## Atualizar o cardápio
+**A ativação está pendente:** o repositório não contém senha padrão nem projeto Supabase configurado. O login e os salvamentos só funcionam depois de seguir [o guia de configuração](docs/ADMIN_SETUP.md). Não coloque senhas ou chaves administrativas em arquivos públicos.
 
-- Produtos, preços e número do WhatsApp: `app.js`.
-- Fotos: `assets/`.
-- Visual e textos de apresentação: `styles.css` e `index.html`.
+O backend usa Supabase Auth e PostgreSQL, com lista de administradores, RLS e funções de gravação autorizadas no servidor. Tokens ficam somente na memória da página. O cliente relê o catálogo antes de abrir o pedido no WhatsApp. Estoque é manual, sem reserva ou baixa automática.
 
-O pedido só é enviado quando o cliente confirma o envio no WhatsApp. Disponibilidade, prazo e taxa de entrega são confirmados pela Maravi.
+Enquanto `config.js` estiver vazio, o cardápio original de `app.js` continua funcionando e o painel fica bloqueado. Depois de configurado, falhas no backend não fazem o site voltar silenciosamente a preços ou estoque antigos.
+
+## Desenvolvimento e verificação
+
+Requisitos de testes: Node.js 20+ e npm. O site em si continua sendo HTML/CSS/JavaScript estático, sem build ou dependências de execução.
+
+```sh
+npm ci
+npm run check
+```
+
+`check` valida sintaxe, testes de unidade/DOM e permissões/validações do banco em PostgreSQL embutido (PGlite). Não acessa serviços reais nem cria credenciais.
+
+Teste de navegador opcional:
+
+```sh
+npx playwright install chromium
+python3 -m http.server 8765
+# Em outro terminal:
+npm run test:browser
+```
+
+`TEST_BASE_URL` altera o endereço de teste; `CHROMIUM_PATH` permite usar Chromium já instalado. Os testes simulam o backend e não enviam pedidos. As verificações contra Supabase real e a inspeção visual devem ser concluídas antes da ativação em produção.
+
+## Publicação e arquivos
+
+O GitHub Pages publica a raiz de `main`. Uma branch/PR de revisão não ativa o painel no site. A configuração do backend e a publicação são etapas separadas.
+
+- `config.js`: URL e chave pública do backend.
+- `supabase/schema.sql`: banco, funções e catálogo inicial.
+- `app.js`: catálogo estático inicial, WhatsApp e regras de pedidos/promoções.
+- `assets/`: fotos; o painel escolhe arquivos já publicados, sem upload.
+- `admin.html`, `admin.js`, `admin.css`: administração.
+- `styles.css` e `index.html`: apresentação do cardápio.
+
+Disponibilidade final, prazo e taxa de entrega continuam sendo confirmados pela Maravi.

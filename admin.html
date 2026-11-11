@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="referrer" content="same-origin">
+  <title>Administração · Maravi Doceria</title>
+  <link rel="stylesheet" href="admin.css">
+  <script src="config.js" defer></script>
+  <script src="backend-client.js" defer></script>
+  <script src="catalog-model.js" defer></script>
+  <script src="admin.js" defer></script>
+</head>
+<body>
+  <div class="top-pattern" aria-hidden="true"></div>
+  <header class="page-header wrap"><a class="brand" href="index.html"><span class="seal">MR</span><span>Maravi<small>DOCERIA · ADMINISTRAÇÃO</small></span></a><a href="index.html" class="text-link">Ver cardápio ↗</a></header>
+  <main class="wrap">
+    <p id="status" role="status" aria-live="polite" hidden></p>
+    <section id="login-section" class="login-card">
+      <span class="eyebrow">SEU CARDÁPIO, DO SEU JEITO</span>
+      <h1>Bem-vinda à Maravi.</h1>
+      <p>Entre para cuidar dos produtos, sabores e disponibilidade.</p>
+      <p id="setup-notice" class="notice" hidden>O painel ainda não foi conectado ao banco de dados. Configure o backend conforme o guia de instalação antes de entrar. Nenhuma alteração pode ser publicada neste estado.</p>
+      <form id="login-form">
+        <label for="email">E-mail de administração</label><input id="email" type="email" autocomplete="username" required maxlength="254">
+        <label for="password">Senha</label><input id="password" type="password" autocomplete="current-password" required maxlength="1024">
+        <button id="login-button" type="submit" class="primary">Entrar no painel</button>
+      </form>
+      <p class="hint">A sessão termina ao recarregar ou fechar esta página. Esqueceu a senha? Solicite a recuperação ao responsável pelo backend.</p>
+    </section>
+    <section id="workspace" hidden>
+      <div class="heading"><div><span class="eyebrow">PAINEL DA DOCERIA</span><h1>Cuidar do cardápio.</h1><p>Um só lugar para os doces que vão ao ar.</p></div><button id="logout" class="secondary" type="button">Sair da conta</button></div>
+      <div class="summary" id="summary"></div>
+      <div class="notice"><strong>Estoque manual.</strong> Informe a quantidade disponível ou deixe em branco para não limitar. Pedidos pelo WhatsApp não reservam nem descontam estoque automaticamente. A confirmação continua sendo feita pela Maravi.</div>
+      <div class="publish-bar"><div><strong id="draft-state">Sem alterações pendentes</strong><small id="revision"></small></div><div class="actions"><button id="reload" type="button" class="secondary">Recarregar / descartar</button><button id="publish" type="button" class="primary" disabled>Publicar alterações</button></div></div>
+      <div class="toolbar"><label class="search-label" for="search">Buscar produto<input id="search" type="search" placeholder="Nome ou categoria"></label><label for="filter">Mostrar<select id="filter"><option value="all">Todos os produtos</option><option value="active">Ativos</option><option value="inactive">Inativos</option><option value="empty">Sem estoque</option></select></label><button id="new-product" class="primary" type="button">+ Novo produto</button></div>
+      <p class="hint">Alterações ficam no rascunho até você publicar. Inativar preserva o cadastro e retira o produto do cardápio.</p>
+      <div id="products" class="products"></div>
+    </section>
+  </main>
+  <dialog id="editor" aria-labelledby="editor-title">
+    <form id="product-form">
+      <div class="dialog-head"><div><span class="eyebrow">DETALHES DO PRODUTO</span><h2 id="editor-title">Editar produto</h2></div><button id="close-editor" class="icon-button" type="button" aria-label="Fechar edição">×</button></div>
+      <p id="promotion-notice" class="notice" hidden>A promoção do Quarteto Maravi permanece em R$ 2 de desconto por par elegível. Caixas com 4 unidades de “Chocolate 50%” não participam. Alterar o preço ou esse nome de sabor exige revisar a regra da promoção no código.</p>
+      <p id="editor-error" class="error" role="alert" hidden></p>
+      <div class="form-grid">
+        <label class="full" for="product-name">Nome<input id="product-name" required maxlength="100"></label>
+        <label for="product-id">Identificador<input id="product-id" required pattern="[a-z0-9]+(-[a-z0-9]+)*" maxlength="80" placeholder="ex.: cookie-especial"><small>Único, sem espaços ou acentos.</small></label>
+        <label for="product-category">Categoria<input id="product-category" required maxlength="80" list="categories"></label>
+        <label for="product-price">Preço (R$)<input id="product-price" type="number" min="0.01" max="10000" step="0.01" required></label>
+        <label for="product-stock">Estoque disponível<input id="product-stock" type="number" min="0" max="99999" step="1" placeholder="Sem limite"><small>Vazio: não limitar. Zero: esgotado.</small></label>
+        <label class="full" for="product-weight">Peso / apresentação<input id="product-weight" maxlength="100"></label>
+        <label class="full" for="product-description">Descrição<textarea id="product-description" rows="3" maxlength="1000"></textarea></label>
+        <label class="full" for="product-image">Imagem já publicada<input id="product-image" list="images" pattern="assets/[a-z0-9]+(-[a-z0-9]+)*\.webp" maxlength="100" required placeholder="assets/classic-nutella.webp"><small>Use um arquivo .webp da pasta assets. Este painel não envia novas fotos.</small></label>
+        <label for="product-type">Tipo<select id="product-type"><option value="">Produto simples</option><option value="aconchego">Caixa de 4 cookies</option><option value="quarteto">Caixa de 4 brigadeiros</option></select></label>
+        <label class="checkbox"><input id="product-active" type="checkbox">Ativo no cardápio</label>
+      </div>
+      <section id="flavors-section" hidden><h3>Sabores da caixa</h3><p class="hint">O cliente escolhe exatamente 4 unidades entre os sabores ativos. Cadastre até 20 sabores; nomes não podem se repetir. Sem sabores ativos, a caixa fica indisponível.</p><div id="flavors"></div><button id="add-flavor" class="secondary" type="button">+ Adicionar sabor</button></section>
+      <p class="hint">Aplicar atualiza somente seu rascunho. Depois, use “Publicar alterações”.</p>
+      <div class="dialog-actions"><button id="cancel-editor" type="button" class="secondary">Cancelar</button><button class="primary" type="submit">Aplicar ao rascunho</button></div>
+    </form>
+  </dialog>
+  <datalist id="categories"></datalist><datalist id="images"></datalist>
+</body>
+</html>
